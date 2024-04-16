@@ -1,0 +1,6 @@
+gunicorn
+flask
+requests
+gevent
+flask-restx
+python-dotenv
