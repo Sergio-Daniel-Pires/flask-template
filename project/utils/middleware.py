@@ -1,21 +1,28 @@
+import functools
 import logging
 import traceback
 from collections.abc import Callable
+from typing import Any
 
 import flask
 
+USER_DATA = dict[str, Any]
 
-class Middleware:
-    def __init__(self) -> None:
-        pass
-
-    def __call__(self, f: Callable):
+def middleware(send_user_data: bool = True):
+    def _middleware(func: Callable):
+        @functools.wraps(func)
         def wrapper(*args, **kwargs):
             status_code = 200
             response = { "result": None, "message": "Ok" }
 
             try:
-                result = f(*args, **kwargs)
+                if send_user_data:
+                    user_data = dict(flask.request.form)
+                    user_data.update(flask.request.files)
+
+                    args = ( args[0], user_data, ) + args[1:]   
+
+                result = func(*args, **kwargs)
 
                 # Return file
                 if isinstance(result, flask.Response):
@@ -25,7 +32,7 @@ class Middleware:
 
             except Exception as exc:
                 # Pretty error on server-side
-                logging.error(traceback.format_exc)
+                logging.error(traceback.format_exc())
                 status_code = 400
                 response["message"] = f"{type(exc).__name__} Error: {exc}"
 

@@ -18,10 +18,10 @@ def echo_message(user_data: dict[str, Any]):
     except ValueError as exc:
         raise ValueError(f"'{echo_message.echo_type}' is not an valid echo type!")
 
-    if echo_message.echo_type == "Mirror":
+    if echo_message.echo_type.lower() == "mirror":
         return f"{echo_message.message} | {echo_message.reverse()}"
 
-    elif echo_message.echo_type == "Reverse":
+    elif echo_message.echo_type.lower() == "reverse":
         return echo_message.reverse()
 
     return echo_message.message

@@ -2,11 +2,8 @@ FROM python:3.12-slim
 
 ENV PYTHONPATH "${PYTHONPATH}:/flask-template"
 
-COPY requirements.txt /
+WORKDIR /project
 
-RUN pip install -r requirements.txt
+COPY pyproject.toml ./
 
-RUN mkdir -p /flask-template/project
-COPY *.py .env /flask-template
-COPY project /flask-template/project
-WORKDIR /flask-template/project
+RUN pip install .
