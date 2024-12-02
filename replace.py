@@ -39,7 +39,7 @@ def main(args: list[str] = None):
 
             content = template.render(
                 project_name=parsed_args.project_name, port=parsed_args.port,
-                author=parsed_args.author, email=parsed_args.email
+                author=parsed_args.author, author_email=parsed_args.email
             )
 
         os.remove(template_file_name)
