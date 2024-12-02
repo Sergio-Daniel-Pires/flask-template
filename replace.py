@@ -45,3 +45,6 @@ def main(args: list[str] = None):
 
         with open(template_file_name, "w") as file:
             file.write(content)
+
+if __name__ == "__main__":
+    main()
