@@ -25,9 +25,11 @@ dependencies = [
 [tool.setuptools]
 packages = []
 
+{% if repository_url %}
 [project.urls]
 repository = ""
 
+{% endif %}
 [project.optional-dependencies]
 replace = [
   "jinja2==3.1.3"

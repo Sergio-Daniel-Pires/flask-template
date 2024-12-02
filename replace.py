@@ -26,9 +26,14 @@ replace_parser.add_argument(
     "-e", "--email", help="Author email", required=True, type=str
 )
 
+replace_parser.add_argument(
+    "-r", "--repository-url", help="Project repository url", type=str
+)
+
 def main(args: list[str] = None):
     parsed_args = replace_parser.parse_args(args)
 
+    # Replace variables in templates
     templates = (
         "Dockerfile.template", "docker-compose.template.yml", "pyproject.template.toml"
     )
@@ -47,6 +52,9 @@ def main(args: list[str] = None):
 
         with open(template_file_name, "w") as file:
             file.write(content)
+
+    # Delete this file after all replaces
+    os.remove("replace.py")
 
 if __name__ == "__main__":
     main()

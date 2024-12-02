@@ -5,6 +5,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    volumes:
+      - .:/project
     ports:
       - {{ port }}:8000
-    command: [ "gunicorn", "-c", "/{{ project_name }}/gunicorn_config.py", "app:app" ]
+    command: [ "gunicorn", "-c", "/project/gunicorn_config.py", "project.app:app" ]
