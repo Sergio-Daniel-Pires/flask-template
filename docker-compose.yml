@@ -1,10 +1,10 @@
 version: '3'
 services:
-  {{project-name}}:
-    container_name: {{project-name}}
+  {{ project_name }}:
+    container_name: {{ project_name }}
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - 8000:8000
-    command: [ "gunicorn", "-c", "/{{project-name}}/gunicorn_config.py", "app:app" ]
+      - {{ port }}:8000
+    command: [ "gunicorn", "-c", "/{{ project_name }}/gunicorn_config.py", "app:app" ]

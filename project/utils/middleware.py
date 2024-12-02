@@ -40,3 +40,5 @@ def middleware(send_user_data: bool = True):
             return response, status_code
 
         return wrapper
+
+    return _middleware

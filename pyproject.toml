@@ -1,7 +1,7 @@
 [project]
-name = "{{project_name}}"
+name = "{{ project_name }}"
 requires-python = ">=3.10"
-authors = [{ name="{{author}}", email="{{author_email}}" }]
+authors = [{ name="{{ author }}", email="{{ author_email }}" }]
 description = "A simple backend base"
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -29,6 +29,10 @@ packages = []
 repository = ""
 
 [project.optional-dependencies]
+replace = [
+  "jinja2==3.1.3"
+]
+
 test = [
   "pytest==7.4.2"
 ]
