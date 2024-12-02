@@ -1,3 +1,4 @@
+import os
 from argparse import ArgumentParser
 
 from jinja2 import Template
@@ -32,8 +33,8 @@ def main(args: list[str] = None):
         "Dockerfile.template", "docker-compose.template.yml", "pyproject.template.toml"
     )
 
-    for template in templates:
-        with open(template) as file:
+    for template_file_name in templates:
+        with open(template_file_name) as file:
             template = Template(file.read())
 
             content = template.render(
@@ -41,7 +42,8 @@ def main(args: list[str] = None):
                 author=parsed_args.author, email=parsed_args.email
             )
 
-        template_file_name = template.replace(".template", "")
+        os.remove(template_file_name)
+        template_file_name = template_file_name.replace(".template", "")
 
         with open(template_file_name, "w") as file:
             file.write(content)
