@@ -142,12 +142,25 @@ diretório e porta. Basta configurar no GitHub:
 Na VPS, rode `bash deploy/setup-vps.sh` uma vez; depois cada push em `main`
 atualiza o projeto. O `.env` da VPS é preservado entre deploys.
 
+## Agentes e skills
+
+- `AGENTS.md` na raiz: regras para trabalhar no próprio template (gerar as duas
+  variantes, validar e atualizar o PR).
+- `template/AGENTS.md`: instruções que nascem na raiz de cada projeto gerado —
+  stack, comandos, loop de escopo/implementação/testes e definição de pronto.
+- `.opencode/skills/owasp-review`: skill local de revisão de segurança do diff.
+- UI: **Taste** só para explorar duas direções; **Impeccable** para implementar a
+  direção escolhida. As instruções de instalação estão no README gerado.
+
 ## Estrutura
 
 ```text
 .
+├── AGENTS.md                # instruções para agentes neste repo
 ├── create_project.py        # gerador (sem dependências)
+├── .opencode/skills/        # skill local de review OWASP
 ├── template/                # arquivos copiados para o projeto novo
+│   ├── AGENTS.md            # instruções do projeto gerado
 │   ├── project/             # backend Flask (factory + services)
 │   ├── frontend/            # React + Vite + Playwright
 │   ├── tests/

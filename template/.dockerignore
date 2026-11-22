@@ -22,5 +22,9 @@ frontend/playwright-report
 instance
 .env
 
+# Agent instructions and local skills
+.opencode
+AGENTS.md
+
 # Tests are not needed inside the runtime image
 tests

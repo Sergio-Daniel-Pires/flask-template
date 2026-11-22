@@ -136,6 +136,43 @@ npm run test:e2e:dev
 
 Nesse modo os servidores de desenvolvimento são reaproveitados, sem rebuild.
 
+## Skills de agente (OpenCode)
+
+O projeto inclui `AGENTS.md` com o fluxo de trabalho (escopo → fatia
+end-to-end → testes → review → demo) e a skill local
+`.opencode/skills/owasp-review/SKILL.md`.
+
+Para UI, instale as skills uma vez na raiz do projeto (se já instalou
+globalmente com `--global`/`-g`, pule este passo):
+
+```powershell
+npx.cmd impeccable install
+npx.cmd skills add https://github.com/Leonxlnx/taste-skill --list
+npx.cmd skills add https://github.com/Leonxlnx/taste-skill --skill design-taste-frontend -a opencode
+```
+
+No Linux/macOS, troque `npx.cmd` por `npx`.
+
+- **Taste (`design-taste-frontend`)**: só quando a direção visual ainda está em
+  aberto. Propõe duas opções e espera a escolha.
+- **Impeccable**: implementa a direção escolhida e revisa layout, tipografia,
+  formulários, foco e estados.
+- **`owasp-review`**: revisa o diff quando pedido ou antes da demo, se tocar em
+  permissões, dados sensíveis ou gravações críticas.
+
+Exemplos de chamada:
+
+1. “Use `design-taste-frontend` para propor duas direções compactas para esta
+   tela. Descreva o layout, a densidade e a ação principal. Espere minha escolha.”
+2. “Use `impeccable` para implementar a direção escolhida. Conecte a ação
+   principal à API e mostre claramente o sucesso ou o erro. Rode o teste
+   relevante.”
+3. “Use `owasp-review` no diff atual. Reporte achados concretos com arquivo e
+   linha.”
+
+Peça as skills pelo nome no OpenCode. Se alguma não estiver instalada, o agente
+deve avisar e aplicar o mesmo checklist manualmente.
+
 ## Deploy na VPS
 
 O workflow [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) já vem
@@ -193,6 +230,8 @@ Observações:
 
 ```text
 .
+├── AGENTS.md               # instruções para agentes
+├── .opencode/skills/       # skill local owasp-review
 ├── project/
 │   ├── app.py              # factory + serving do build do frontend
 │   ├── config.py           # settings por ambiente
