@@ -64,6 +64,8 @@ def git_config(key: str) -> str | None:
             ["git", "config", "--get", key],
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             check=False,
         )
     except FileNotFoundError:
@@ -81,6 +83,8 @@ def default_repo_url(project_name: str) -> str:
             cwd=ROOT,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             check=False,
         )
     except FileNotFoundError:
@@ -203,6 +207,8 @@ def init_git(target: Path) -> bool:
             cwd=target,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             check=False,
         )
     except FileNotFoundError:
