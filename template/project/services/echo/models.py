@@ -12,7 +12,7 @@ class EchoMessage:
     echo_type: str = "None"
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "EchoMessage":
+    def from_dict(cls, data: dict[str, Any]) -> EchoMessage:
         fields = {field.name for field in dc.fields(cls)}
         return cls(**{key: value for key, value in data.items() if key in fields})
 
