@@ -59,9 +59,11 @@ Flask na porta 5000.
 
 ### Produção local com Docker (opcional)
 
+O projeto já vem com `.env` e uma chave secreta aleatória. Se estiver partindo de
+um clone sem `.env`, crie a partir do exemplo e troque `FLASK_SECRET_KEY`:
+
 ```bash
 cp .env.example .env   # Windows: Copy-Item .env.example .env
-# troque FLASK_SECRET_KEY por um valor forte
 docker compose up -d --build
 ```
 
