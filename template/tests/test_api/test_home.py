@@ -1,5 +1,5 @@
 def test_home_return_value(client):
-    req = client.get("/home/")
+    req = client.get("/api/home/")
 
     assert req.status_code == 200
     assert req.json["result"] == "Hello World!"

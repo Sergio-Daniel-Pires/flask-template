@@ -5,7 +5,7 @@ class TestEcho:
     @pytest.mark.parametrize("message", ["Hello World", "Echo bot"])
     def test_normal_echo(self, client, message: str):
         req = client.post(
-            "/echo/string",
+            "/api/echo/string",
             json={"message": message, "echo_type": "None"},
         )
 
@@ -22,7 +22,7 @@ class TestEcho:
     )
     def test_transformed_echo(self, client, echo_type: str, expected: str):
         req = client.post(
-            "/echo/string",
+            "/api/echo/string",
             json={"message": "Hello World", "echo_type": echo_type},
         )
 
@@ -30,13 +30,13 @@ class TestEcho:
         assert req.json["result"] == expected
 
     def test_missing_message_returns_400(self, client):
-        req = client.post("/echo/string", json={"echo_type": "None"})
+        req = client.post("/api/echo/string", json={"echo_type": "None"})
 
         assert req.status_code == 400, req.text
 
     def test_invalid_echo_type_returns_400(self, client):
         req = client.post(
-            "/echo/string",
+            "/api/echo/string",
             json={"message": "Hello", "echo_type": "Shout"},
         )
 

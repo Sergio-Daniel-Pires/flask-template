@@ -1,14 +1,13 @@
-import dotenv
+import os
 
-# Load .env vars
-dotenv.load_dotenv(override=False)
+from dotenv import load_dotenv
 
-from project.utils import config as conf
+load_dotenv(override=False)
 
-bind = conf.GUNICORN_BIND
-workers = conf.GUNICORN_WORKERS
-worker_class = conf.GUNICORN_WORKER_CLASS
-timeout = conf.GUNICORN_TIMEOUT
-
-if conf.FLASK_ENV == "dev":
-    reload = True
+bind = os.getenv("GUNICORN_BIND", "0.0.0.0:8000")
+workers = int(os.getenv("GUNICORN_WORKERS", "2"))
+worker_class = os.getenv("GUNICORN_WORKER_CLASS", "sync")
+timeout = int(os.getenv("GUNICORN_TIMEOUT", "60"))
+loglevel = os.getenv("GUNICORN_LOG_LEVEL", "info")
+accesslog = "-"
+errorlog = "-"
