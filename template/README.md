@@ -24,20 +24,41 @@ without Docker. Open two terminals.
 
 ### 1. Backend
 
+Create the virtual environment and install dependencies once:
+
 ```bash
 uv sync --extra dev
+```
+
+Activation is optional with `uv run`, but it helps editors and direct commands.
+
+Windows PowerShell:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+# If script execution is blocked:
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+```
+
+Linux/macOS:
+
+```bash
+source .venv/bin/activate
+```
+
+Run the backend:
+
+```bash
 uv run flask --app project.app run --debug
+# or, with the venv activated:
+flask --app project.app run --debug
 ```
 
 Without `uv`:
 
 ```bash
 python -m venv .venv
-# Windows PowerShell:
-.venv\Scripts\Activate.ps1
-# Linux/macOS:
-source .venv/bin/activate
-
+# activate using the commands above
 pip install -e ".[dev]"
 flask --app project.app run --debug
 ```
@@ -56,6 +77,23 @@ npm run dev
 
 Open <http://localhost:5173>. Vite proxies `/api` and `/healthz` to Flask on
 port 5000.
+
+### Stopping the servers
+
+Use `Ctrl+C` in each terminal. If a port is stuck on Windows:
+
+```powershell
+Get-NetTCPConnection -LocalPort 5000,5173 -State Listen
+Stop-Process -Id <PID> -Force
+```
+
+On Linux/macOS:
+
+```bash
+lsof -i :5000
+lsof -i :5173
+kill <PID>
+```
 
 ### Local production with Docker (optional)
 

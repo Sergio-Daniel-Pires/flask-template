@@ -81,9 +81,23 @@ npm run dev
 - Swagger: <http://localhost:5000/api/docs>
 - Health: <http://localhost:5000/healthz>
 
-Without `uv`, use `python -m venv .venv`, activate it, and run
-`pip install -e ".[dev]"`. The generated README has the steps for Windows and
-Linux.
+`uv run` does not require activation. To activate the venv manually:
+
+- Windows PowerShell: `.\.venv\Scripts\Activate.ps1`
+- Linux/macOS: `source .venv/bin/activate`
+
+Without `uv`:
+
+```bash
+python -m venv .venv
+# activate using the command for your OS above
+pip install -e ".[dev]"
+flask --app project.app run --debug
+```
+
+Stop the servers with `Ctrl+C` in each terminal. If a port is stuck on Windows:
+`Get-NetTCPConnection -LocalPort 5000,5173 -State Listen` then
+`Stop-Process -Id <PID> -Force`.
 
 ## What the generated project includes
 
