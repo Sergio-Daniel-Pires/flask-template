@@ -47,27 +47,39 @@ export default function HomePage() {
   }, []);
 
   return (
-    <section className="stack">
+    <section className="page">
       <header className="hero">
-        <p className="eyebrow">Flask + React + Vite</p>
+        <p className="eyebrow">Flask + React starter</p>
         <h1>{PROJECT_NAME}</h1>
         <p className="lede">
-          A starter built for fast iteration: a documented API, a typed frontend,
-          and end-to-end tests.
+          A small, working app with a documented API and end-to-end tests. This
+          Home is a placeholder: replace it with the requested screen.
         </p>
+
+        <div className="actions">
+          <a className="button" href="/api/docs">
+            API docs
+          </a>
+        </div>
       </header>
 
-      <div className="grid">
+      <div className="dashboard">
         <article className="card">
-          <h2>Backend</h2>
+          <div className="card-heading">
+            <h2>Backend</h2>
+            {!status.loading && !status.error ? (
+              <span className="badge">Online</span>
+            ) : null}
+          </div>
+
           {status.loading ? (
             <p className="muted">Checking the API…</p>
           ) : status.error ? (
-            <p className="error" role="alert">
+            <p className="alert" role="alert">
               {status.error}
             </p>
           ) : (
-            <p className="success" data-testid="api-status">
+            <p className="status" data-testid="api-status">
               <span className="dot" aria-hidden="true" />
               {status.message}
             </p>
@@ -79,7 +91,7 @@ export default function HomePage() {
               <dd>{status.version ?? "—"}</dd>
             </div>
             <div>
-              <dt>Health check</dt>
+              <dt>Health</dt>
               <dd>
                 <a href="/healthz">/healthz</a>
               </dd>
@@ -88,7 +100,13 @@ export default function HomePage() {
         </article>
 
         <article className="card">
-          <h2>Endpoints</h2>
+          <div className="card-heading">
+            <h2>API surface</h2>
+            <a className="text-link" href="/api/docs">
+              Swagger
+            </a>
+          </div>
+
           <ul className="endpoint-list">
             <li>
               <code>GET /api/home/</code>
@@ -96,31 +114,18 @@ export default function HomePage() {
             </li>
             <li>
               <code>POST /api/echo/string</code>
-              <span>Echo messages</span>
+              <span>Echo example</span>
             </li>
-            [[#if database]]
             <li>
-              <code>GET /api/notes/</code>
-              <span>Notes list</span>
-            </li>
-            [[/endif]]
-            <li>
-              <code>GET /api/docs</code>
-              <span>Swagger UI</span>
+              <code>GET /healthz</code>
+              <span>Health check</span>
             </li>
           </ul>
-        </article>
 
-        <article className="card accent">
-          <h2>Next step</h2>
-          <p>
-            Edit <code>project/services/</code> on the backend and{" "}
-            <code>frontend/src/pages/</code> on the frontend. Vite proxies{" "}
-            <code>/api</code> to Flask in development.
+          <p className="hint">
+            API reference lives in Swagger. Architecture, development, and
+            deployment notes live in the Sphinx docs under <code>docs/</code>.
           </p>
-          <a className="button" href="/echo">
-            Try the echo
-          </a>
         </article>
       </div>
     </section>

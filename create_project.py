@@ -38,9 +38,9 @@ IGNORED_FILES = {".DS_Store", "Thumbs.db"}
 
 TOKEN_PATTERN = re.compile(r"\[\[\s*([a-z_][a-z0-9_]*)\s*\]\]")
 BLOCK_PATTERN = re.compile(
-    r"^[ \t]*\[\[#if\s+([a-z_][a-z0-9_]*)\]\][ \t]*\r?\n"
+    r"^[ \t]*\[\[#(if|unless)\s+([a-z_][a-z0-9_]*)\]\][ \t]*\r?\n"
     r"(.*?)"
-    r"^[ \t]*\[\[/(?:if|endif)\]\][ \t]*(?:\r?\n)?",
+    r"^[ \t]*\[\[/(?:if|endif|unless)\]\][ \t]*(?:\r?\n)?",
     re.DOTALL | re.MULTILINE,
 )
 NAME_PATTERN = re.compile(r"^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$")
@@ -49,10 +49,7 @@ NAME_PATTERN = re.compile(r"^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$")
 FEATURE_PATHS = {
     "database": (
         "project/extensions.py",
-        "project/services/notes",
-        "tests/test_api/test_notes.py",
-        "frontend/src/pages/NotesPage.tsx",
-        "frontend/e2e/notes.spec.ts",
+        "docs/database.rst",
     ),
 }
 
@@ -111,10 +108,14 @@ def render(text: str, values: dict[str, str | bool], source: Path) -> str:
     """Replace conditional blocks and ``[[ token ]]`` placeholders."""
 
     def replace_block(match: re.Match[str]) -> str:
-        key = match.group(1)
+        directive, key, content = match.group(1), match.group(2), match.group(3)
         if key not in values:
-            raise SystemExit(f"Unknown condition '[[#if {key}]]' in {source}")
-        return match.group(2) if values[key] else ""
+            raise SystemExit(f"Unknown condition '[[#{directive} {key}]]' in {source}")
+
+        enabled = bool(values[key])
+        if directive == "unless":
+            enabled = not enabled
+        return content if enabled else ""
 
     def replace_token(match: re.Match[str]) -> str:
         key = match.group(1)
@@ -200,21 +201,37 @@ def write_local_env(target: Path) -> None:
         file.write(content)
 
 
-def init_git(target: Path) -> bool:
-    try:
-        result = subprocess.run(
-            ["git", "init", "-b", "main"],
-            cwd=target,
-            capture_output=True,
-            text=True,
-            encoding="utf-8",
-            errors="replace",
-            check=False,
-        )
-    except FileNotFoundError:
-        return False
+def _git(target: Path, *args: str) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        ["git", *args],
+        cwd=target,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        check=False,
+    )
 
-    return result.returncode == 0
+
+def init_git(target: Path) -> tuple[bool, bool]:
+    """Initialize the repository and try to create an initial commit."""
+    try:
+        result = _git(target, "init", "-b", "main")
+    except FileNotFoundError:
+        return False, False
+
+    if result.returncode != 0:
+        return False, False
+
+    if not git_config("user.name") or not git_config("user.email"):
+        return True, False
+
+    add = _git(target, "add", "-A")
+    if add.returncode != 0:
+        return True, False
+
+    commit = _git(target, "commit", "-m", "chore: initial scaffold")
+    return True, commit.returncode == 0
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -264,7 +281,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--database",
         choices=("sqlite", "none"),
         default="sqlite",
-        help="Include the SQLite + SQLAlchemy example (default: sqlite)",
+        help="Include SQLite/SQLAlchemy wiring (default: sqlite)",
     )
     parser.add_argument(
         "--repo-url",
@@ -319,12 +336,18 @@ def main(argv: list[str] | None = None) -> int:
     write_local_env(target)
 
     git_initialized = False
+    git_committed = False
     if not args.no_git_init:
-        git_initialized = init_git(target)
+        git_initialized, git_committed = init_git(target)
 
     print(f"Created {project_name} in {target}")
-    if git_initialized:
-        print("Initialized an empty git repository on branch 'main'.")
+    if git_committed:
+        print("Initialized git on 'main' and created the initial commit.")
+    elif git_initialized:
+        print(
+            "Initialized git on 'main'. No initial commit was created; "
+            "configure git user.name and user.email and commit manually."
+        )
     elif not args.no_git_init:
         print("Git was not found; skipped 'git init'.")
 

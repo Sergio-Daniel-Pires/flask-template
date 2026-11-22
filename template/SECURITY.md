@@ -9,8 +9,7 @@ has been fixed and what has been **consciously accepted** (ACK).
   unknown values fail instead of silently falling back to development.
 - Production requires `FLASK_SECRET_KEY` with at least 32 characters and rejects
   placeholders such as `change-me`.
-- Request bodies are limited to 1 MiB; echo is limited to 10,000 characters and
-  notes to 500 characters.
+- Request bodies are limited to 1 MiB; echo is limited to 10,000 characters.
 - The container publishes its port only on `127.0.0.1`; TLS and rate limiting
   live in nginx/proxy.
 - Basic headers: `X-Content-Type-Options`, `X-Frame-Options`, and
@@ -25,14 +24,13 @@ has been fixed and what has been **consciously accepted** (ACK).
 | --- | --- | --- | --- | --- | --- |
 | ACK-001 | Rate limiting | Outside the app; nginx/proxy responsibility. | Avoids a dependency and complexity in the starter. | Port bound to `127.0.0.1`; proxy in front. | If the proxy is removed or the app is exposed directly. |
 | ACK-002 | SSH deploy as `root` | Accepted; it is machine configuration and will not change here. | The VPS environment already works this way. | Dedicated key, `VPS_SSH_KEY` in secrets, fingerprint when configured. | If the VPS allows a deploy user with Docker access. |
-| ACK-003 | Public notes API | Accepted for the demo. | The starter has no identity layer. | Do not store personal or sensitive data; use locally or for demos. | Before any real use or third-party data. |
+| ACK-003 | Public read-only example endpoints (home/echo) | Accepted for the demo. | The starter has no identity layer. | Do not store personal or sensitive data; use locally or for demos. | Before any real use or third-party data. |
 | ACK-004 | TLS | Outside the app; terminated at nginx/proxy. | The package should not embed a proxy. | Container is not exposed directly. | Before public internet access. |
 | ACK-005 | Public Swagger | Accepted for the demo. | Helps inspect the API during the interview. | No privileged writes; endpoints are examples. | In real production, protect or disable `/api/docs`. |
 | ACK-006 | CSP/HSTS | Delegated to nginx/proxy. | CSP needs the domain and proxy asset policy. | Basic headers in Flask. | When configuring the domain and TLS. |
 | ACK-007 | GitHub Actions by tag | Accepted in the template. | Automatic security updates are desirable. | `permissions: contents: read`; isolated secrets. | In a high-assurance repository, pin by SHA. |
 | ACK-008 | Docker via `curl \| sh` | Accepted for VPS bootstrap. | Fast setup for a demo machine. | Script runs once during initial setup. | In a hardened environment, use a package or verified checksum. |
 | ACK-009 | Docker uses `pip`, not `uv.lock` | Accepted for simplicity. | The starter prioritizes fast iteration. | Dependencies have ranges in `pyproject.toml`. | When strict reproducibility is required. |
-| ACK-010 | Notes without pagination | Accepted for the demo. | Small volume, no real users. | Limit of 500 characters per note. | Before data volume grows. |
 | ACK-011 | No authentication/identity | Out of scope for the starter. | Fast interview setup, no real data. | Do not store PII; the API is an example. | Before any user-data feature. |
 | ACK-012 | Optional SSH fingerprint | Accepted for the demo. | Not every VPS has the secret configured initially. | `VPS_FINGERPRINT` is documented; configure it for real deploys. | Before any production deployment. |
 

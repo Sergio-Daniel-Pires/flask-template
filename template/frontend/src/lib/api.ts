@@ -5,12 +5,6 @@ export type ApiEnvelope<T> = {
   message: string;
 };
 
-export type Note = {
-  id: number;
-  text: string;
-  created_at: string;
-};
-
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${API_BASE}${path}`, {
     ...init,
@@ -46,14 +40,4 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ message, echo_type: echoType }),
     }),
-  [[#if database]]
-  notes: {
-    list: () => request<ApiEnvelope<Note[]>>("/notes/"),
-    create: (text: string) =>
-      request<ApiEnvelope<Note>>("/notes/", {
-        method: "POST",
-        body: JSON.stringify({ text }),
-      }),
-  },
-  [[/endif]]
 };

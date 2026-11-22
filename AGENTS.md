@@ -7,13 +7,16 @@ new directory.
 ## Map
 
 - `create_project.py` — stdlib generator. Renders `[[ token ]]` and
-  `[[#if feature]]...[[/if]]` blocks. Supports `--database sqlite|none`.
+  `[[#if feature]]...[[/if]]` / `[[#unless feature]]...[[/unless]]` blocks.
+  Supports `--database sqlite|none`.
 - `template/` — source copied into every generated project. Its `README.md`,
-  `AGENTS.md`, and `.opencode/` land at the root of the generated project.
-- `template/project/` — Flask backend (app factory, services, SQLite example).
+  `AGENTS.md`, `SECURITY.md`, `docs/`, and `.opencode/` land at the root of the
+  generated project.
+- `template/project/` — Flask backend (app factory, services, optional SQLite wiring).
 - `template/frontend/` — React/Vite frontend and Playwright tests.
-- `.github/workflows/template-ci.yml` — generates both variants and validates
-  backend, frontend, and Playwright.
+- `template/docs/` — Sphinx implementation docs (`.rst`).
+- `template/.github/workflows/` — CI/deploy for **generated projects only**.
+  This repository intentionally has no workflow of its own.
 
 ## Before coding
 
@@ -25,6 +28,8 @@ new directory.
    asks for a direct meta/docs change.
 3. For multi-step changes, write a short todo list. Keep the first slice
    end-to-end before polishing.
+4. Docs-first: update the relevant `template/docs/*.rst` page with the scope,
+   API/data change, and decisions before implementing. Keep it short.
 
 ## Changing the template
 
@@ -34,6 +39,10 @@ new directory.
 - Do not run app commands from the repository root: generate a project first.
 - Prefer the existing stack and dependencies. New dependencies need a concrete
   reason and a mention in the PR.
+- Never create a second/mocked API for E2E tests. Playwright must hit the real
+  Flask backend; the generated guard fails on route mocking.
+- Keep API schemas in Swagger only. Implementation details belong in Sphinx
+  `.rst`; README stays a short quick start.
 
 ## Validate
 
@@ -47,17 +56,24 @@ python create_project.py -n review-nodb --path ../review-nodb --vps-host 203.0.1
 For each generated project:
 
 ```bash
-uv sync --extra dev
+uv sync --extra dev --extra docs
 uv run ruff check .
 uv run ruff format --check .
 uv run pytest
+uv run sphinx-build -W -b html docs docs/_build/html
 
 cd frontend
 npm ci
 npm run typecheck
 npm run build
+npm run test:e2e:guard
 npm run test:e2e
 ```
+
+Report the exact commands, what passed, and what was not run. Distinguish what
+the generator/template implements from what the generated project's tests
+demonstrate. State any coverage gaps (idempotency, concurrency, auth,
+rate limiting, cross-browser) rather than implying they are covered.
 
 Docker build/smoke test when Docker is available. If Docker or the VPS is not
 available, state that explicitly instead of claiming it was tested.

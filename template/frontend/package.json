@@ -8,9 +8,10 @@
     "build": "vite build",
     "preview": "vite preview",
     "typecheck": "tsc -b",
-    "test:e2e": "playwright test",
-    "test:e2e:dev": "playwright test --config playwright.dev.config.ts",
-    "test:e2e:ui": "playwright test --ui"
+    "test:e2e": "node scripts/check-e2e-real-api.mjs && playwright test",
+    "test:e2e:dev": "node scripts/check-e2e-real-api.mjs && playwright test --config playwright.dev.config.ts",
+    "test:e2e:guard": "node scripts/check-e2e-real-api.mjs",
+    "test:e2e:ui": "node scripts/check-e2e-real-api.mjs && playwright test --ui"
   },
   "dependencies": {
     "react": "^19.3.1",

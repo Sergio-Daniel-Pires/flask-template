@@ -38,9 +38,10 @@ python create_project.py --name my-api --vps-host 203.0.113.10 --port 8000
 This creates `../my-api` (a sibling folder of the template) with:
 
 - a local `.env` already filled with a random secret key
-- a Git repository initialized on `main`
+- a Git repository initialized on `main`, with an initial scaffold commit when
+  `user.name` and `user.email` are configured
 - VPS host, user, path, and port applied to the deploy workflow
-- frontend, backend, tests, and CI ready to run
+- frontend, backend, tests, docs, and CI ready to run
 
 ### Options
 
@@ -55,7 +56,7 @@ This creates `../my-api` (a sibling folder of the template) with:
 | `--vps-path` | `/opt/<name>` | Project folder on the VPS |
 | `--port` | `8000` | Host port for the app; bound to `127.0.0.1` |
 | `--repo-url` | inferred from `origin` | URL used by the VPS setup script |
-| `--database` | `sqlite` | `sqlite` includes the CRUD example; `none` removes it |
+| `--database` | `sqlite` | Include SQLite/SQLAlchemy wiring; `none` skips it |
 | `--no-git-init` | off | Skip `git init` |
 
 ## Run the generated project
@@ -103,35 +104,62 @@ Stop the servers with `Ctrl+C` in each terminal. If a port is stuck on Windows:
 
 - **Backend**: app factory, environment settings, versioned `/api`, proper HTTP
   errors, Swagger, and `/healthz`.
-- **Frontend**: React 19 + TypeScript + React Router, example pages, and an
-  `/api` proxy in Vite.
-- **Database**: SQLite at `instance/app.db` (Flask-SQLAlchemy) with a small notes
-  CRUD example; `DATABASE_URL` switches to Postgres/MySQL.
-- **Tests**: pytest for the API and Playwright (headless Chromium) for the real
-  browser flow.
+- **Frontend**: React 19 + TypeScript + React Router, with a single Home
+  placeholder. Remove or replace it when the task does not ask for a landing
+  page. No Echo/About/Notes page bloat.
+- **Database**: optional SQLite/SQLAlchemy wiring at `instance/app.db`; no
+  example model. `DATABASE_URL` switches to Postgres/MySQL.
+- **Tests**: pytest for the API and Playwright (headless Chromium) against the
+  real Flask backend. The E2E guard fails on mocked `/api` routes.
+- **Docs**: Swagger is the only API reference; implementation docs are Sphinx
+  `.rst` under `docs/`, with a coverage matrix in `docs/testing.rst`.
 - **Docker**: multi-stage image (React build + Gunicorn), non-root user,
   healthcheck, and a persistent volume for SQLite.
-- **CI**: lint, typecheck, tests, Playwright, and a Docker build/smoke test.
+- **CI**: lint, typecheck, tests, Playwright, docs build, and a Docker
+  build/smoke test.
 - **Deploy**: SSH + `docker compose up -d --build`, with a health check.
 - **Security**: `SECURITY.md` with the baseline and explicit accepted risks
   (ACK); the OWASP skill requires an ACK instead of silently ignoring a finding.
-- **Agent instructions**: `AGENTS.md` with the project map, commands, and working
-  loop; a local `owasp-review` skill; optional Impeccable/TasteSkill for UI.
+- **Agent instructions**: `AGENTS.md` with the project map, docs-first loop,
+  test-reporting rules, and the E2E real-backend guard; a local `owasp-review`
+  skill; optional Impeccable/TasteSkill for UI.
+- **Git hygiene**: comprehensive `.gitignore` for Python/uv, Node/Vite/React,
+  Playwright, Sphinx, editors, and local secrets.
 
 ### Fast Playwright
 
-The suite has 3 tests and runs in headless Chromium:
+The suite has one test and runs in headless Chromium:
 
 ```bash
 cd frontend
 npx playwright install --only-shell chromium   # first time
 npm run test:e2e        # build + Flask on port 5050 (production path)
 npm run test:e2e:dev    # reuses running Flask + Vite servers (fast loop)
+npm run test:e2e:guard  # fails if E2E mocks /api
 ```
 
-`test:e2e` validates the real build served by Flask, including SPA deep links.
-`test:e2e:dev` is the fastest loop: if both dev servers are already running,
-there is no build or startup wait.
+`test:e2e` validates the real build served by Flask and the real backend,
+including SPA deep links. `test:e2e:dev` is the fastest loop: if both dev
+servers are already running, there is no build or startup wait.
+
+
+### Documentation
+
+The generated project keeps docs separated:
+
+- `README.md` — quick start and links only.
+- `docs/*.rst` — Sphinx architecture, development, testing, deployment, and
+  database details.
+- `/api/docs` — Swagger, the only API reference.
+- `SECURITY.md` — security baseline and ACKs.
+- `docs/testing.rst` — coverage matrix and evidence-reporting rules.
+
+Build the docs:
+
+```bash
+uv sync --extra docs
+uv run sphinx-build -W -b html docs docs/_build/html
+```
 
 ## Working on the template
 
@@ -147,8 +175,9 @@ uv run pytest
 cd frontend && npm ci && npm run typecheck && npm run test:e2e
 ```
 
-[`template-ci.yml`](.github/workflows/template-ci.yml) generates the project with
-and without a database and runs backend, frontend, and Playwright.
+This repository intentionally has **no GitHub Actions workflow**. Only generated
+projects receive CI/deploy workflows; validate the template locally with the
+commands above (or in your own CI outside this repo).
 
 ## Deploy
 
@@ -185,10 +214,10 @@ binds to `127.0.0.1`; nginx/Caddy should terminate TLS and apply rate limits.
 ├── template/                # files copied into the new project
 │   ├── AGENTS.md            # generated project instructions
 │   ├── SECURITY.md          # baseline + accepted risks (ACK)
+│   ├── docs/                # Sphinx implementation docs
 │   ├── project/             # Flask backend (factory + services)
 │   ├── frontend/            # React + Vite + Playwright
 │   ├── tests/
 │   ├── deploy/              # VPS bootstrap
 │   └── .github/workflows/   # generated project CI and deploy
-└── .github/workflows/       # template CI
 ```

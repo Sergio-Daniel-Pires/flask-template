@@ -25,6 +25,7 @@ instance
 # Agent instructions and local skills
 .opencode
 AGENTS.md
+docs
 
 # Tests are not needed inside the runtime image
 tests

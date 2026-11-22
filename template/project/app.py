@@ -12,9 +12,6 @@ from project.extensions import db
 [[/endif]]
 from project.services.echo.views import echo_ns
 from project.services.home.views import home_ns
-[[#if database]]
-from project.services.notes.views import notes_ns
-[[/endif]]
 
 API_PREFIX = "/api"
 MAX_CONTENT_LENGTH = 1 * 1024 * 1024
@@ -61,9 +58,6 @@ def create_app(test_config: dict | None = None) -> Flask:
     )
     api.add_namespace(home_ns, path="/home")
     api.add_namespace(echo_ns, path="/echo")
-    [[#if database]]
-    api.add_namespace(notes_ns, path="/notes")
-    [[/endif]]
     api.init_app(app)
 
     @app.get("/healthz")
