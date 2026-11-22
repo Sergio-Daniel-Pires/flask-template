@@ -28,6 +28,7 @@ def create_app(test_config: dict | None = None) -> Flask:
         TESTING=False,
         JSON_SORT_KEYS=False,
         MAX_CONTENT_LENGTH=MAX_CONTENT_LENGTH,
+        FRONTEND_DIST=str(settings.frontend_dist),
     )
     if test_config:
         app.config.update(test_config)
@@ -64,7 +65,7 @@ def create_app(test_config: dict | None = None) -> Flask:
     def healthz():
         return {"status": "ok", "version": __version__}
 
-    _register_frontend(app, settings.frontend_dist)
+    _register_frontend(app, Path(app.config["FRONTEND_DIST"]))
     return app
 
 
