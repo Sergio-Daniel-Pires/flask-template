@@ -286,7 +286,7 @@ def main(argv: list[str] | None = None) -> int:
         raise SystemExit("--port must be between 1 and 65535.")
 
     target = (args.path or ROOT.parent / project_name).expanduser().resolve()
-    if target.exists() and any(target.iterdir()):
+    if target.exists() and (not target.is_dir() or any(target.iterdir())):
         raise SystemExit(f"Destination is not empty: {target}")
 
     if not TEMPLATE_DIR.is_dir():
