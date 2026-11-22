@@ -71,7 +71,8 @@ the plan is not the same as using it.
   hierarchy, forms, focus, and error/success states.
 - **`owasp-review`** — use when the user asks, or before the demo if the diff
   touched permissions, sensitive data, or critical writes. Review the diff and
-  the code needed to confirm each finding.
+  the code needed to confirm each finding. Record any finding you accept in
+  `SECURITY.md` under **Accepted risks (ACK)**; do not silently ignore it.
 - If a skill is unavailable, say so and apply the same checklist manually.
 
 ## Backend and data

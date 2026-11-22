@@ -53,6 +53,9 @@ line-length = 100
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "SIM"]
 
+[tool.ruff.lint.isort]
+known-first-party = ["project"]
+
 [tool.coverage.run]
 source = ["project"]
 

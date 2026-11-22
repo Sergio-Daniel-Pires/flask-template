@@ -62,6 +62,8 @@ class NoteList(Resource):
         text = (notes_ns.payload or {}).get("text", "").strip()
         if not text:
             notes_ns.abort(400, "text must not be empty")
+        if len(text) > 500:
+            notes_ns.abort(400, "text must be at most 500 characters")
 
         note = Note(text=text)
         db.session.add(note)

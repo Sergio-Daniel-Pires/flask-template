@@ -30,3 +30,7 @@ For each finding, report:
 Verify each finding in the code; do not report speculative issues. If there are
 no concrete findings, list what you checked and any residual risks. Do not edit
 code during the review unless the user asks you to apply the fixes.
+
+If a finding will be accepted instead of fixed, add an ACK row to `SECURITY.md`
+with the reason, current mitigation, and a trigger to revisit. Never ignore a
+finding silently.

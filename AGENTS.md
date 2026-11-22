@@ -72,7 +72,8 @@ it in the plan.
   text options (layout, density, main action), wait for a choice, then use
   Impeccable to build it.
 - `owasp-review` — local skill in `.opencode/skills/owasp-review` (also installed
-  globally). Review the current diff before opening or updating a PR.
+  globally). Review the current diff before opening or updating a PR. Accepted
+  findings must be recorded in `template/SECURITY.md` (ACK), not ignored.
 
 If a skill is unavailable, say so and apply the same checklist manually.
 

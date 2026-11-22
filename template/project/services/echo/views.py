@@ -10,6 +10,7 @@ echo_input = echo_ns.model(
     {
         "message": fields.String(
             required=True,
+            max_length=10_000,
             description="Message that the server will echo",
             example="Hello world",
         ),

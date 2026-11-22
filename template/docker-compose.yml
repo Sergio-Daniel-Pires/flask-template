@@ -11,7 +11,7 @@ services:
       FLASK_ENV: production
       GUNICORN_BIND: 0.0.0.0:8000
     ports:
-      - "[[ app_port ]]:8000"
+      - "127.0.0.1:[[ app_port ]]:8000"
     volumes:
       - app-data:/app/instance
     healthcheck:

@@ -17,6 +17,7 @@ from project.services.notes.views import notes_ns
 [[/endif]]
 
 API_PREFIX = "/api"
+MAX_CONTENT_LENGTH = 1 * 1024 * 1024
 
 
 def create_app(test_config: dict | None = None) -> Flask:
@@ -29,9 +30,17 @@ def create_app(test_config: dict | None = None) -> Flask:
         DEBUG=settings.debug,
         TESTING=False,
         JSON_SORT_KEYS=False,
+        MAX_CONTENT_LENGTH=MAX_CONTENT_LENGTH,
     )
     if test_config:
         app.config.update(test_config)
+
+    @app.after_request
+    def add_security_headers(response):
+        response.headers.setdefault("X-Content-Type-Options", "nosniff")
+        response.headers.setdefault("X-Frame-Options", "DENY")
+        response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+        return response
 
     [[#if database]]
     app.config["SQLALCHEMY_DATABASE_URI"] = settings.database_url

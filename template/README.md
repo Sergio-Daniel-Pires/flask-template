@@ -173,6 +173,12 @@ Exemplos de chamada:
 Peça as skills pelo nome no OpenCode. Se alguma não estiver instalada, o agente
 deve avisar e aplicar o mesmo checklist manualmente.
 
+## Segurança
+
+O baseline e os riscos aceitos conscientemente (**ACK**) ficam em
+[`SECURITY.md`](SECURITY.md). Rate limit, TLS e headers de proxy são
+responsabilidade do nginx; o container escuta apenas em `127.0.0.1`.
+
 ## Deploy na VPS
 
 O workflow [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) já vem
@@ -183,7 +189,7 @@ com estes valores preenchidos:
 | Host | `[[ vps_host ]]` |
 | Usuário SSH | `[[ vps_user ]]` |
 | Diretório | `[[ vps_path ]]` |
-| Porta pública | `[[ app_port ]]` |
+| Porta upstream | `[[ app_port ]]` (bind em `127.0.0.1`) |
 
 1. Gere uma chave SSH para o deploy e autorize a pública na VPS:
 
@@ -221,7 +227,9 @@ Observações:
 - O `.env` da VPS não é versionado e sobrevive ao `git reset --hard`.
 - Repositório privado: configure uma deploy key com acesso de leitura na VPS
   (ou clones via HTTPS com token) para o `git fetch` funcionar.
-- Libere a porta `[[ app_port ]]` no firewall/security group da VPS.
+- O container fica em `127.0.0.1:[[ app_port ]]`; coloque nginx/Caddy com TLS
+  na frente e não exponha essa porta direto no firewall. Rate limit e TLS são
+  responsabilidade do proxy.
 [[#if database]]
 - Para outro banco, defina `DATABASE_URL` no `.env` da VPS.
 [[/if]]
@@ -231,6 +239,7 @@ Observações:
 ```text
 .
 ├── AGENTS.md               # instruções para agentes
+├── SECURITY.md             # baseline + riscos aceitos (ACK)
 ├── .opencode/skills/       # skill local owasp-review
 ├── project/
 │   ├── app.py              # factory + serving do build do frontend

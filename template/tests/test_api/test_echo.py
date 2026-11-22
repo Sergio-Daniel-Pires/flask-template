@@ -43,3 +43,11 @@ class TestEcho:
         assert req.status_code == 400, req.text
         assert "echo_type" in req.json["errors"]
         assert "Shout" in req.json["errors"]["echo_type"]
+
+    def test_message_too_long_returns_400(self, client):
+        req = client.post(
+            "/api/echo/string",
+            json={"message": "x" * 10_001, "echo_type": "None"},
+        )
+
+        assert req.status_code == 400, req.text

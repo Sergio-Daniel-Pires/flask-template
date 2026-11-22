@@ -52,7 +52,7 @@ Isso cria `../minha-api` (pasta irmã do template) com:
 | `--vps-host` | obrigatório | Host/IP gravado no workflow de deploy |
 | `--vps-user` | `root` | Usuário SSH do deploy |
 | `--vps-path` | `/opt/<name>` | Pasta do projeto na VPS |
-| `--port` | `8000` | Porta pública na VPS |
+| `--port` | `8000` | Porta upstream na VPS (bind em `127.0.0.1`) |
 | `--repo-url` | inferido do `origin` | URL usada pelo setup da VPS |
 | `--database` | `sqlite` | `sqlite` inclui o exemplo de CRUD; `none` remove |
 | `--no-git-init` | desligado | Não roda `git init` |
@@ -98,6 +98,8 @@ Linux.
   e volume para o SQLite.
 - **CI**: lint, typecheck, testes, Playwright e smoke test da imagem.
 - **Deploy**: SSH + `docker compose up -d --build`, com health check.
+- **Segurança**: `SECURITY.md` com baseline e ACKs explícitos; a skill OWASP
+  exige ACK para achado aceito, em vez de ignorar.
 
 ### Playwright rápido
 
@@ -149,6 +151,8 @@ atualiza o projeto. O `.env` da VPS é preservado entre deploys.
 - `template/AGENTS.md`: instruções que nascem na raiz de cada projeto gerado —
   stack, comandos, loop de escopo/implementação/testes e definição de pronto.
 - `.opencode/skills/owasp-review`: skill local de revisão de segurança do diff.
+- Achados aceitos são registrados em `template/SECURITY.md` (ACK), não
+  silenciados.
 - UI: **Taste** só para explorar duas direções; **Impeccable** para implementar a
   direção escolhida. As instruções de instalação estão no README gerado.
 
@@ -161,6 +165,7 @@ atualiza o projeto. O `.env` da VPS é preservado entre deploys.
 ├── .opencode/skills/        # skill local de review OWASP
 ├── template/                # arquivos copiados para o projeto novo
 │   ├── AGENTS.md            # instruções do projeto gerado
+│   ├── SECURITY.md          # baseline + riscos aceitos (ACK)
 │   ├── project/             # backend Flask (factory + services)
 │   ├── frontend/            # React + Vite + Playwright
 │   ├── tests/

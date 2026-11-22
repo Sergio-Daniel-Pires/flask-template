@@ -16,3 +16,10 @@ def test_rejects_blank_note(client):
 
     assert response.status_code == 400, response.text
     assert "must not be empty" in response.json["message"]
+
+
+def test_rejects_too_long_note(client):
+    response = client.post("/api/notes/", json={"text": "x" * 501})
+
+    assert response.status_code == 400, response.text
+    assert "too long" in response.json["errors"]["text"]

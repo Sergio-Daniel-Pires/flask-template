@@ -10,6 +10,18 @@ from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+VALID_ENVS = frozenset({"development", "test", "production"})
+MIN_PRODUCTION_SECRET_LENGTH = 32
+INSECURE_SECRETS = frozenset(
+    {
+        "change-me",
+        "changeme",
+        "secret",
+        "super secret key",
+        "dev-only-insecure-secret-key",
+    }
+)
+
 # Load .env once, without overriding real environment variables.
 load_dotenv(BASE_DIR / ".env", override=False)
 
@@ -19,6 +31,42 @@ def _env_bool(name: str, default: bool) -> bool:
     if value is None:
         return default
     return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _get_env() -> str:
+    env = os.getenv("FLASK_ENV", "development").strip().lower()
+    if env not in VALID_ENVS:
+        raise RuntimeError(f"FLASK_ENV must be one of {sorted(VALID_ENVS)}; got {env!r}")
+    return env
+
+
+def _get_secret_key(env: str) -> str:
+    secret_key = os.getenv("FLASK_SECRET_KEY", "").strip()
+
+    if env == "production":
+        if not secret_key:
+            raise RuntimeError("FLASK_SECRET_KEY must be set when FLASK_ENV=production")
+        if (
+            secret_key.casefold() in INSECURE_SECRETS
+            or len(secret_key) < MIN_PRODUCTION_SECRET_LENGTH
+        ):
+            raise RuntimeError(
+                "FLASK_SECRET_KEY is too weak for production; use at least "
+                f"{MIN_PRODUCTION_SECRET_LENGTH} characters and no placeholder."
+            )
+        return secret_key
+
+    if not secret_key:
+        logging.getLogger(__name__).warning(
+            "FLASK_SECRET_KEY is not set; using an insecure development key."
+        )
+        return "dev-only-insecure-secret-key"
+
+    if secret_key.casefold() in INSECURE_SECRETS or len(secret_key) < MIN_PRODUCTION_SECRET_LENGTH:
+        logging.getLogger(__name__).warning(
+            "FLASK_SECRET_KEY looks weak; this is acceptable only for development."
+        )
+    return secret_key
 
 
 @dataclass(frozen=True)
@@ -36,17 +84,9 @@ class Settings:
 
 @lru_cache
 def get_settings() -> Settings:
-    env = os.getenv("FLASK_ENV", "development").strip().lower()
-    debug = _env_bool("FLASK_DEBUG", env != "production")
-
-    secret_key = os.getenv("FLASK_SECRET_KEY", "").strip()
-    if not secret_key:
-        if env == "production":
-            raise RuntimeError("FLASK_SECRET_KEY must be set when FLASK_ENV=production")
-        secret_key = "dev-only-insecure-secret-key"
-        logging.getLogger(__name__).warning(
-            "FLASK_SECRET_KEY is not set; using an insecure development key."
-        )
+    env = _get_env()
+    debug = _env_bool("FLASK_DEBUG", env == "development")
+    secret_key = _get_secret_key(env)
 
     frontend_dist = Path(
         os.getenv("FRONTEND_DIST", str(BASE_DIR / "frontend" / "dist"))
