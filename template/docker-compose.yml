@@ -1,0 +1,36 @@
+services:
+  [[ project_name ]]:
+    image: [[ project_name ]]:latest
+    container_name: [[ project_name ]]
+    build:
+      context: .
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      FLASK_ENV: production
+      GUNICORN_BIND: 0.0.0.0:8000
+    ports:
+      - "[[ app_port ]]:8000"
+    volumes:
+      - app-data:/app/instance
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/healthz')",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  app-data:
