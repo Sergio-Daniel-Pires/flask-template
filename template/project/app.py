@@ -41,8 +41,8 @@ def create_app(test_config: dict | None = None) -> Flask:
     Path(app.instance_path).mkdir(parents=True, exist_ok=True)
     with app.app_context():
         db.create_all()
-    [[/endif]]
 
+    [[/endif]]
     api = Api(
         title="[[ project_name ]] API",
         version=__version__,

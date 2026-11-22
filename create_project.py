@@ -40,7 +40,7 @@ TOKEN_PATTERN = re.compile(r"\[\[\s*([a-z_][a-z0-9_]*)\s*\]\]")
 BLOCK_PATTERN = re.compile(
     r"^[ \t]*\[\[#if\s+([a-z_][a-z0-9_]*)\]\][ \t]*\r?\n"
     r"(.*?)"
-    r"^[ \t]*\[\[/endif\]\][ \t]*(?:\r?\n)?",
+    r"^[ \t]*\[\[/(?:if|endif)\]\][ \t]*(?:\r?\n)?",
     re.DOTALL | re.MULTILINE,
 )
 NAME_PATTERN = re.compile(r"^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$")

@@ -1,4 +1,17 @@
+import { existsSync } from "node:fs";
+import { resolve } from "node:path";
+
 import { defineConfig, devices } from "@playwright/test";
+
+const projectRoot = resolve(import.meta.dirname, "..");
+const venvPython =
+  process.platform === "win32"
+    ? ".venv/Scripts/python.exe"
+    : ".venv/bin/python";
+const hasVenv = existsSync(resolve(projectRoot, venvPython));
+const backend = hasVenv
+  ? `cd .. && "${venvPython}" -m flask --app project.app run`
+  : "cd .. && uv run flask --app project.app run";
 
 /**
  * Fast local loop: reuses the dev servers you already have running.
@@ -29,8 +42,7 @@ export default defineConfig({
   ],
   webServer: [
     {
-      command:
-        "cd .. && uv run flask --app project.app run --host 127.0.0.1 --port 5000 --no-reload",
+      command: `${backend} --host 127.0.0.1 --port 5000 --no-reload`,
       url: "http://127.0.0.1:5000/healthz",
       reuseExistingServer: true,
       timeout: 120_000,
