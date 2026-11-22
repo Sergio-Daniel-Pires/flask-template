@@ -37,7 +37,22 @@ IGNORED_DIRS = {
 IGNORED_FILES = {".DS_Store", "Thumbs.db"}
 
 TOKEN_PATTERN = re.compile(r"\[\[\s*([a-z_][a-z0-9_]*)\s*\]\]")
+BLOCK_PATTERN = re.compile(
+    r"^[ \t]*\[\[#if\s+([a-z_][a-z0-9_]*)\]\][ \t]*\r?\n"
+    r"(.*?)"
+    r"^[ \t]*\[\[/endif\]\][ \t]*(?:\r?\n)?",
+    re.DOTALL | re.MULTILINE,
+)
 NAME_PATTERN = re.compile(r"^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$")
+
+# Files and directories that only exist when a feature is enabled.
+FEATURE_PATHS = {
+    "database": (
+        "project/extensions.py",
+        "project/services/notes",
+        "tests/test_api/test_notes.py",
+    ),
+}
 
 
 def git_config(key: str) -> str | None:
@@ -86,32 +101,61 @@ def default_repo_url(project_name: str) -> str:
     return url
 
 
-def render(text: str, values: dict[str, str], source: Path) -> str:
-    """Replace ``[[ token ]]`` placeholders, failing loudly on typos."""
+def render(text: str, values: dict[str, str | bool], source: Path) -> str:
+    """Replace conditional blocks and ``[[ token ]]`` placeholders."""
 
-    def replace(match: re.Match[str]) -> str:
+    def replace_block(match: re.Match[str]) -> str:
+        key = match.group(1)
+        if key not in values:
+            raise SystemExit(f"Unknown condition '[[#if {key}]]' in {source}")
+        return match.group(2) if values[key] else ""
+
+    def replace_token(match: re.Match[str]) -> str:
         key = match.group(1)
         if key not in values:
             raise SystemExit(f"Unknown placeholder '[[ {key} ]]' in {source}")
-        return values[key]
+        value = values[key]
+        if not isinstance(value, str):
+            raise SystemExit(f"Placeholder '[[ {key} ]]' is not text in {source}")
+        return value
 
-    return TOKEN_PATTERN.sub(replace, text)
+    text = BLOCK_PATTERN.sub(replace_block, text)
+    return TOKEN_PATTERN.sub(replace_token, text)
 
 
-def copy_template(target: Path, values: dict[str, str]) -> None:
+def is_optional(relative: str, values: dict[str, str | bool]) -> bool:
+    """Return True when a file belongs to a disabled feature."""
+    for feature, paths in FEATURE_PATHS.items():
+        if values.get(feature):
+            continue
+        if any(relative == path or relative.startswith(f"{path}/") for path in paths):
+            return True
+    return False
+
+
+def copy_template(target: Path, values: dict[str, str | bool]) -> None:
     """Copy and render every UTF-8 text file from the template directory."""
     for current_dir, dir_names, file_names in os.walk(TEMPLATE_DIR):
+        current_path = Path(current_dir)
+        current_relative = current_path.relative_to(TEMPLATE_DIR).as_posix()
+        prefix = "" if current_relative == "." else f"{current_relative}/"
+
         dir_names[:] = [
-            name for name in dir_names if name not in IGNORED_DIRS
+            name
+            for name in dir_names
+            if name not in IGNORED_DIRS and not is_optional(f"{prefix}{name}", values)
         ]
 
-        current_path = Path(current_dir)
         for file_name in file_names:
             if file_name in IGNORED_FILES:
                 continue
 
             source = current_path / file_name
-            destination = target / source.relative_to(TEMPLATE_DIR)
+            relative = source.relative_to(TEMPLATE_DIR).as_posix()
+            if is_optional(relative, values):
+                continue
+
+            destination = target / relative
             destination.parent.mkdir(parents=True, exist_ok=True)
 
             data = source.read_bytes()
@@ -122,7 +166,7 @@ def copy_template(target: Path, values: dict[str, str]) -> None:
                 shutil.copy2(source, destination)
                 continue
 
-            rendered = render(text, values, source.relative_to(TEMPLATE_DIR))
+            rendered = render(text, values, relative)
             with destination.open("w", encoding="utf-8", newline="") as file:
                 file.write(rendered)
 
@@ -206,6 +250,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="Public HTTP port on the VPS (default: 8000)",
     )
     parser.add_argument(
+        "--database",
+        choices=("sqlite", "none"),
+        default="sqlite",
+        help="Include the SQLite + SQLAlchemy example (default: sqlite)",
+    )
+    parser.add_argument(
         "--repo-url",
         help="Repository URL used by the VPS setup script (default: inferred from origin)",
     )
@@ -250,6 +300,7 @@ def main(argv: list[str] | None = None) -> int:
         "vps_path": vps_path,
         "app_port": str(args.port),
         "year": str(date.today().year),
+        "database": args.database == "sqlite",
     }
 
     target.mkdir(parents=True, exist_ok=True)

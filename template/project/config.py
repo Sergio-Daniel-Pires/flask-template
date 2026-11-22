@@ -26,6 +26,7 @@ class Settings:
     env: str
     debug: bool
     secret_key: str
+    database_url: str
     frontend_dist: Path
 
     @property
@@ -51,9 +52,13 @@ def get_settings() -> Settings:
         os.getenv("FRONTEND_DIST", str(BASE_DIR / "frontend" / "dist"))
     ).expanduser()
 
+    default_database = BASE_DIR / "instance" / "app.db"
+    database_url = os.getenv("DATABASE_URL", f"sqlite:///{default_database.as_posix()}")
+
     return Settings(
         env=env,
         debug=debug,
         secret_key=secret_key,
+        database_url=database_url,
         frontend_dist=frontend_dist,
     )

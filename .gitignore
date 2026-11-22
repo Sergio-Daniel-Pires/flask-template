@@ -18,6 +18,11 @@ build/
 # Node
 node_modules/
 frontend/dist/
+frontend/test-results/
+frontend/playwright-report/
+
+# Runtime data
+instance/
 
 # Editors and OS files
 .vscode/

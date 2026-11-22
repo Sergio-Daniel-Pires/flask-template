@@ -7,8 +7,14 @@ from flask_restx import Api
 
 from project._version import __version__
 from project.config import get_settings
+[[#if database]]
+from project.extensions import db
+[[/endif]]
 from project.services.echo.views import echo_ns
 from project.services.home.views import home_ns
+[[#if database]]
+from project.services.notes.views import notes_ns
+[[/endif]]
 
 API_PREFIX = "/api"
 
@@ -27,6 +33,16 @@ def create_app(test_config: dict | None = None) -> Flask:
     if test_config:
         app.config.update(test_config)
 
+    [[#if database]]
+    app.config["SQLALCHEMY_DATABASE_URI"] = settings.database_url
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    db.init_app(app)
+
+    Path(app.instance_path).mkdir(parents=True, exist_ok=True)
+    with app.app_context():
+        db.create_all()
+    [[/endif]]
+
     api = Api(
         title="[[ project_name ]] API",
         version=__version__,
@@ -36,6 +52,9 @@ def create_app(test_config: dict | None = None) -> Flask:
     )
     api.add_namespace(home_ns, path="/home")
     api.add_namespace(echo_ns, path="/echo")
+    [[#if database]]
+    api.add_namespace(notes_ns, path="/notes")
+    [[/endif]]
     api.init_app(app)
 
     @app.get("/healthz")
