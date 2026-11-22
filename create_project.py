@@ -51,6 +51,8 @@ FEATURE_PATHS = {
         "project/extensions.py",
         "project/services/notes",
         "tests/test_api/test_notes.py",
+        "frontend/src/pages/NotesPage.tsx",
+        "frontend/e2e/notes.spec.ts",
     ),
 }
 
