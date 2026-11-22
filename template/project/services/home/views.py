@@ -1,12 +1,10 @@
 from flask_restx import Namespace, Resource
 
-from project.utils.middleware import middleware
+home_ns = Namespace("home", description="Template home endpoint")
 
-home_ns = Namespace("Home", description="Flask template home")
 
 @home_ns.route("/")
-class HomePage(Resource):
-
-    @middleware(send_user_data=False)
+class Home(Resource):
     def get(self):
-        return "Hello World!"
+        """Small sanity check used by the frontend and by monitoring."""
+        return {"result": "Hello World!", "message": "Ok"}

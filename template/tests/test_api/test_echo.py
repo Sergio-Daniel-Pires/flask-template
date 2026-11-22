@@ -1,31 +1,45 @@
-import json
-
 import pytest
 
 
-class TestOk:
-    @pytest.mark.parametrize("message", [
-        "Hello World", "Echo bot"
-    ])
-    def test_normal_echo (self, client, message: str):
-        with client:
-            data = json.dumps({ "message": message, "echo_type": "None" })
+class TestEcho:
+    @pytest.mark.parametrize("message", ["Hello World", "Echo bot"])
+    def test_normal_echo(self, client, message: str):
+        req = client.post(
+            "/echo/string",
+            json={"message": message, "echo_type": "None"},
+        )
 
-            req = client.post("/echo/string", data=data)
+        assert req.status_code == 200, req.text
+        assert req.json["result"] == message
+        assert req.json["message"] == "Ok"
 
-            assert req.json["result"] == message, f"Expected same message, got {req.text}"
-            assert req.status_code == 200, f"Expected status 200, got {req.status_code}"
-        
-    @pytest.mark.parametrize(["message", "reverse"], [
-        ( "Hello", "olleH" ), ( "World", "dlroW" )
-    ])
-    def test_reverse_echo (self, client, message: str, reverse: str):
-        with client:
-            data = json.dumps({ "message": message, "echo_type": "Reverse" })
+    @pytest.mark.parametrize(
+        ("echo_type", "expected"),
+        [
+            ("Reverse", "dlroW olleH"),
+            ("Mirror", "Hello World | dlroW olleH"),
+        ],
+    )
+    def test_transformed_echo(self, client, echo_type: str, expected: str):
+        req = client.post(
+            "/echo/string",
+            json={"message": "Hello World", "echo_type": echo_type},
+        )
 
-            req = client.post("/echo/string", data=data)
+        assert req.status_code == 200, req.text
+        assert req.json["result"] == expected
 
-            assert (
-                req.json["result"] == reverse
-            ), f"Expected reversed message ({reverse}), got {req.text}"
-            assert req.status_code == 200, f"Expected status 200, got {req.status_code}"
+    def test_missing_message_returns_400(self, client):
+        req = client.post("/echo/string", json={"echo_type": "None"})
+
+        assert req.status_code == 400, req.text
+
+    def test_invalid_echo_type_returns_400(self, client):
+        req = client.post(
+            "/echo/string",
+            json={"message": "Hello", "echo_type": "Shout"},
+        )
+
+        assert req.status_code == 400, req.text
+        assert "echo_type" in req.json["errors"]
+        assert "Shout" in req.json["errors"]["echo_type"]
