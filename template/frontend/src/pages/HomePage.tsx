@@ -37,7 +37,7 @@ export default function HomePage() {
           loading: false,
           message: null,
           version: null,
-          error: error instanceof Error ? error.message : "Erro desconhecido",
+          error: error instanceof Error ? error.message : "Unknown error",
         });
       });
 
@@ -52,8 +52,8 @@ export default function HomePage() {
         <p className="eyebrow">Flask + React + Vite</p>
         <h1>{PROJECT_NAME}</h1>
         <p className="lede">
-          Base pronta para iterar rápido: API documentada, frontend tipado e testes
-          de ponta a ponta.
+          A starter built for fast iteration: a documented API, a typed frontend,
+          and end-to-end tests.
         </p>
       </header>
 
@@ -61,7 +61,7 @@ export default function HomePage() {
         <article className="card">
           <h2>Backend</h2>
           {status.loading ? (
-            <p className="muted">Consultando a API…</p>
+            <p className="muted">Checking the API…</p>
           ) : status.error ? (
             <p className="error" role="alert">
               {status.error}
@@ -75,7 +75,7 @@ export default function HomePage() {
 
           <dl className="meta">
             <div>
-              <dt>Versão</dt>
+              <dt>Version</dt>
               <dd>{status.version ?? "—"}</dd>
             </div>
             <div>
@@ -96,12 +96,12 @@ export default function HomePage() {
             </li>
             <li>
               <code>POST /api/echo/string</code>
-              <span>Echo de mensagens</span>
+              <span>Echo messages</span>
             </li>
             [[#if database]]
             <li>
               <code>GET /api/notes/</code>
-              <span>Lista de notas</span>
+              <span>Notes list</span>
             </li>
             [[/endif]]
             <li>
@@ -112,14 +112,14 @@ export default function HomePage() {
         </article>
 
         <article className="card accent">
-          <h2>Próximo passo</h2>
+          <h2>Next step</h2>
           <p>
-            Edite <code>project/services/</code> no backend e{" "}
-            <code>frontend/src/pages/</code> no front. O Vite faz proxy de{" "}
-            <code>/api</code> para o Flask em desenvolvimento.
+            Edit <code>project/services/</code> on the backend and{" "}
+            <code>frontend/src/pages/</code> on the frontend. Vite proxies{" "}
+            <code>/api</code> to Flask in development.
           </p>
           <a className="button" href="/echo">
-            Testar o echo
+            Try the echo
           </a>
         </article>
       </div>

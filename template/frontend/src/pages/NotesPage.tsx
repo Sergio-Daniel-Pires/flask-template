@@ -20,7 +20,7 @@ export default function NotesPage() {
       .catch((requestError: unknown) => {
         if (active) {
           setError(
-            requestError instanceof Error ? requestError.message : "Erro desconhecido",
+            requestError instanceof Error ? requestError.message : "Unknown error",
           );
         }
       })
@@ -47,7 +47,7 @@ export default function NotesPage() {
       setText("");
     } catch (requestError: unknown) {
       setError(
-        requestError instanceof Error ? requestError.message : "Erro desconhecido",
+        requestError instanceof Error ? requestError.message : "Unknown error",
       );
     } finally {
       setPending(false);
@@ -58,15 +58,15 @@ export default function NotesPage() {
     <section className="stack narrow">
       <header>
         <p className="eyebrow">SQLite + SQLAlchemy</p>
-        <h1>Notas</h1>
+        <h1>Notes</h1>
         <p className="lede">
-          Exemplo mínimo de persistência: o formulário grava no SQLite e a lista
-          recarrega do backend.
+          Minimal persistence example: the form writes to SQLite and the list
+          reloads from the backend.
         </p>
       </header>
 
       <form className="card form" onSubmit={handleSubmit}>
-        <label htmlFor="note-text">Nova nota</label>
+        <label htmlFor="note-text">New note</label>
         <input
           id="note-text"
           name="note-text"
@@ -75,10 +75,10 @@ export default function NotesPage() {
           maxLength={500}
           required
           autoComplete="off"
-          placeholder="Escreva algo…"
+          placeholder="Write something…"
         />
         <button type="submit" disabled={pending}>
-          {pending ? "Salvando…" : "Adicionar"}
+          {pending ? "Saving…" : "Add"}
         </button>
       </form>
 
@@ -89,18 +89,18 @@ export default function NotesPage() {
       ) : null}
 
       <article className="card">
-        <h2>Salvas</h2>
+        <h2>Saved</h2>
         {loading ? (
-          <p className="muted">Carregando…</p>
+          <p className="muted">Loading…</p>
         ) : notes.length === 0 ? (
-          <p className="muted">Nenhuma nota ainda.</p>
+          <p className="muted">No notes yet.</p>
         ) : (
           <ul className="notes" data-testid="notes-list">
             {notes.map((note) => (
               <li key={note.id}>
                 <span>{note.text}</span>
                 <time dateTime={note.created_at}>
-                  {new Date(note.created_at).toLocaleString("pt-BR")}
+                  {new Date(note.created_at).toLocaleString("en-US")}
                 </time>
               </li>
             ))}

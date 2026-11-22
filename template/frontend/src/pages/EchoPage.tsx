@@ -4,8 +4,8 @@ import { api } from "../lib/api";
 
 const ECHO_TYPES = [
   { value: "None", label: "Normal" },
-  { value: "Reverse", label: "Invertido" },
-  { value: "Mirror", label: "Espelhado" },
+  { value: "Reverse", label: "Reversed" },
+  { value: "Mirror", label: "Mirrored" },
 ];
 
 export default function EchoPage() {
@@ -26,7 +26,7 @@ export default function EchoPage() {
       setResult(response.result);
     } catch (requestError: unknown) {
       setError(
-        requestError instanceof Error ? requestError.message : "Erro desconhecido",
+        requestError instanceof Error ? requestError.message : "Unknown error",
       );
     } finally {
       setPending(false);
@@ -39,12 +39,12 @@ export default function EchoPage() {
         <p className="eyebrow">POST /api/echo/string</p>
         <h1>Echo</h1>
         <p className="lede">
-          Envie uma mensagem e escolha como o backend deve transformá-la.
+          Send a message and choose how the backend should transform it.
         </p>
       </header>
 
       <form className="card form" onSubmit={handleSubmit}>
-        <label htmlFor="message">Mensagem</label>
+        <label htmlFor="message">Message</label>
         <input
           id="message"
           name="message"
@@ -55,7 +55,7 @@ export default function EchoPage() {
           autoComplete="off"
         />
 
-        <label htmlFor="echo-type">Tipo de echo</label>
+        <label htmlFor="echo-type">Echo type</label>
         <select
           id="echo-type"
           name="echo-type"
@@ -70,7 +70,7 @@ export default function EchoPage() {
         </select>
 
         <button type="submit" disabled={pending}>
-          {pending ? "Enviando…" : "Enviar"}
+          {pending ? "Sending…" : "Send"}
         </button>
       </form>
 
@@ -82,7 +82,7 @@ export default function EchoPage() {
 
       {result !== null ? (
         <article className="card result">
-          <h2>Resposta</h2>
+          <h2>Response</h2>
           <pre data-testid="echo-result">{result}</pre>
         </article>
       ) : null}

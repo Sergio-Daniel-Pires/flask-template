@@ -15,20 +15,20 @@ export default function Layout() {
           {PROJECT_NAME}
         </NavLink>
 
-        <nav aria-label="Navegação principal">
+        <nav aria-label="Main navigation">
           <NavLink to="/" end className={linkClass}>
-            Início
+            Home
           </NavLink>
           <NavLink to="/echo" className={linkClass}>
             Echo
           </NavLink>
           [[#if database]]
           <NavLink to="/notes" className={linkClass}>
-            Notas
+            Notes
           </NavLink>
           [[/endif]]
           <NavLink to="/about" className={linkClass}>
-            Sobre
+            About
           </NavLink>
         </nav>
       </header>

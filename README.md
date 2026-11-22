@@ -1,73 +1,74 @@
 # Flask + React template
 
-Template que gera um projeto completo com **Flask**, **React/Vite**,
-**SQLite (opcional)**, testes e deploy automático para uma VPS via GitHub
+Template that generates a complete project with **Flask**, **React/Vite**,
+optional **SQLite**, tests, and automatic deployment to a VPS via GitHub
 Actions.
 
-O repositório não é a aplicação em si: ele gera uma **pasta nova** já
-configurada com nome, autor, porta e host da VPS. O gerador usa apenas a
-biblioteca padrão do Python — não precisa instalar nada para criar o projeto.
+This repository is not the application itself: it generates a **new project
+folder** already configured with the project name, author, port, and VPS host.
+The generator uses only the Python standard library, so no setup is required to
+create a project.
 
-> Não há MongoDB por padrão (nem nenhum banco). O padrão é **SQLite** via
-> Flask-SQLAlchemy, e `--database none` gera o projeto sem banco.
+> There is no MongoDB by default (or any database). The default is **SQLite** via
+> Flask-SQLAlchemy; `--database none` generates the project without a database.
 
-## Requisitos
+## Requirements
 
-- Python 3.11+ (para gerar e rodar o backend)
-- Node.js 20+ (para o frontend)
-- [uv](https://docs.astral.sh/uv/) (recomendado) ou `pip`
-- Docker + Docker Compose (apenas para produção/deploy)
-- Git (opcional, para inicializar o projeto)
+- Python 3.11+ (to generate and run the backend)
+- Node.js 20+ (for the frontend)
+- [uv](https://docs.astral.sh/uv/) (recommended) or `pip`
+- Docker + Docker Compose (production/deploy only)
+- Git (optional, to initialize the project)
 
-## Criar um projeto
+## Create a project
 
 ```bash
 python create_project.py \
-  --name minha-api \
+  --name my-api \
   --vps-host 203.0.113.10 \
   --port 8000
 ```
 
-No Windows (PowerShell), em uma linha:
+On Windows (PowerShell), in one line:
 
 ```powershell
-python create_project.py --name minha-api --vps-host 203.0.113.10 --port 8000
+python create_project.py --name my-api --vps-host 203.0.113.10 --port 8000
 ```
 
-Isso cria `../minha-api` (pasta irmã do template) com:
+This creates `../my-api` (a sibling folder of the template) with:
 
-- `.env` local já preenchido com uma chave secreta aleatória
-- repositório git inicializado em `main`
-- host, usuário, caminho e porta da VPS aplicados no workflow de deploy
-- frontend, backend, testes e CI prontos para rodar
+- a local `.env` already filled with a random secret key
+- a Git repository initialized on `main`
+- VPS host, user, path, and port applied to the deploy workflow
+- frontend, backend, tests, and CI ready to run
 
-### Opções
+### Options
 
-| Opção | Padrão | Descrição |
+| Option | Default | Description |
 | --- | --- | --- |
-| `-n, --name` | obrigatório | Nome em kebab-case (`minha-api`) |
-| `--path` | `../<name>` | Pasta de destino |
-| `-a, --author` | `git config user.name` | Autor no `pyproject.toml` |
-| `-e, --email` | `git config user.email` | E-mail no `pyproject.toml` |
-| `--vps-host` | obrigatório | Host/IP gravado no workflow de deploy |
-| `--vps-user` | `root` | Usuário SSH do deploy |
-| `--vps-path` | `/opt/<name>` | Pasta do projeto na VPS |
-| `--port` | `8000` | Porta upstream na VPS (bind em `127.0.0.1`) |
-| `--repo-url` | inferido do `origin` | URL usada pelo setup da VPS |
-| `--database` | `sqlite` | `sqlite` inclui o exemplo de CRUD; `none` remove |
-| `--no-git-init` | desligado | Não roda `git init` |
+| `-n, --name` | required | Kebab-case project name (`my-api`) |
+| `--path` | `../<name>` | Destination folder |
+| `-a, --author` | `git config user.name` | Author in `pyproject.toml` |
+| `-e, --email` | `git config user.email` | Author email in `pyproject.toml` |
+| `--vps-host` | required | Host/IP embedded in the deploy workflow |
+| `--vps-user` | `root` | SSH user for deployment |
+| `--vps-path` | `/opt/<name>` | Project folder on the VPS |
+| `--port` | `8000` | Host port for the app; bound to `127.0.0.1` |
+| `--repo-url` | inferred from `origin` | URL used by the VPS setup script |
+| `--database` | `sqlite` | `sqlite` includes the CRUD example; `none` removes it |
+| `--no-git-init` | off | Skip `git init` |
 
-## Rodar o projeto gerado
+## Run the generated project
 
 Backend:
 
 ```bash
-cd ../minha-api
+cd ../my-api
 uv sync --extra dev
 uv run flask --app project.app run --debug
 ```
 
-Frontend (outro terminal):
+Frontend (another terminal):
 
 ```bash
 cd frontend
@@ -80,45 +81,47 @@ npm run dev
 - Swagger: <http://localhost:5000/api/docs>
 - Health: <http://localhost:5000/healthz>
 
-Sem `uv`, use `python -m venv .venv`, ative o venv e rode
-`pip install -e ".[dev]"`. O README gerado tem o passo a passo para Windows e
+Without `uv`, use `python -m venv .venv`, activate it, and run
+`pip install -e ".[dev]"`. The generated README has the steps for Windows and
 Linux.
 
-## O que vem no projeto
+## What the generated project includes
 
-- **Backend**: app factory, settings por ambiente, `/api` versionável, erros
-  HTTP corretos, Swagger e `/healthz`.
-- **Frontend**: React 19 + TypeScript + React Router, páginas de exemplo e
-  proxy `/api` no Vite.
-- **Banco**: SQLite em `instance/app.db` (Flask-SQLAlchemy) com CRUD de notas;
-  `DATABASE_URL` troca para Postgres/MySQL.
-- **Testes**: pytest para a API e Playwright (Chromium headless) para o fluxo
-  real no navegador.
-- **Docker**: imagem multi-stage (React build + Gunicorn), non-root, healthcheck
-  e volume para o SQLite.
-- **CI**: lint, typecheck, testes, Playwright e smoke test da imagem.
-- **Deploy**: SSH + `docker compose up -d --build`, com health check.
-- **Segurança**: `SECURITY.md` com baseline e ACKs explícitos; a skill OWASP
-  exige ACK para achado aceito, em vez de ignorar.
+- **Backend**: app factory, environment settings, versioned `/api`, proper HTTP
+  errors, Swagger, and `/healthz`.
+- **Frontend**: React 19 + TypeScript + React Router, example pages, and an
+  `/api` proxy in Vite.
+- **Database**: SQLite at `instance/app.db` (Flask-SQLAlchemy) with a small notes
+  CRUD example; `DATABASE_URL` switches to Postgres/MySQL.
+- **Tests**: pytest for the API and Playwright (headless Chromium) for the real
+  browser flow.
+- **Docker**: multi-stage image (React build + Gunicorn), non-root user,
+  healthcheck, and a persistent volume for SQLite.
+- **CI**: lint, typecheck, tests, Playwright, and a Docker build/smoke test.
+- **Deploy**: SSH + `docker compose up -d --build`, with a health check.
+- **Security**: `SECURITY.md` with the baseline and explicit accepted risks
+  (ACK); the OWASP skill requires an ACK instead of silently ignoring a finding.
+- **Agent instructions**: `AGENTS.md` with the project map, commands, and working
+  loop; a local `owasp-review` skill; optional Impeccable/TasteSkill for UI.
 
-### Playwright rápido
+### Fast Playwright
 
-A suíte tem 3 testes e roda em Chromium headless:
+The suite has 3 tests and runs in headless Chromium:
 
 ```bash
 cd frontend
-npx playwright install --only-shell chromium   # primeira vez
-npm run test:e2e        # build + Flask na porta 5050 (caminho de produção)
-npm run test:e2e:dev    # reaproveita Flask + Vite já rodando (loop rápido)
+npx playwright install --only-shell chromium   # first time
+npm run test:e2e        # build + Flask on port 5050 (production path)
+npm run test:e2e:dev    # reuses running Flask + Vite servers (fast loop)
 ```
 
-O modo `test:e2e` valida o build real servido pelo Flask, incluindo deep link da
-SPA. O modo `test:e2e:dev` é o mais rápido no dia a dia: se os dois servidores de
-desenvolvimento já estiverem rodando, não há build nem espera de startup.
+`test:e2e` validates the real build served by Flask, including SPA deep links.
+`test:e2e:dev` is the fastest loop: if both dev servers are already running,
+there is no build or startup wait.
 
-## Desenvolvimento do template
+## Working on the template
 
-O conteúdo gerado fica em [`template/`](template/). Para testar uma alteração:
+The generated content lives in [`template/`](template/). To test a change:
 
 ```bash
 python create_project.py -n sample-app --vps-host 203.0.113.10 --no-git-init
@@ -130,46 +133,48 @@ uv run pytest
 cd frontend && npm ci && npm run typecheck && npm run test:e2e
 ```
 
-O workflow [`template-ci.yml`](.github/workflows/template-ci.yml) gera o projeto
-com e sem banco e roda backend, frontend e Playwright.
+[`template-ci.yml`](.github/workflows/template-ci.yml) generates the project with
+and without a database and runs backend, frontend, and Playwright.
 
 ## Deploy
 
-O workflow gerado (`.github/workflows/deploy.yml`) já contém host, usuário,
-diretório e porta. Basta configurar no GitHub:
+The generated workflow (`.github/workflows/deploy.yml`) already contains the
+host, user, directory, and port. Configure these in GitHub:
 
-- `VPS_SSH_KEY` (secret obrigatório): chave privada SSH
-- `VPS_FINGERPRINT` (secret opcional, recomendado): fingerprint do host
+- `VPS_SSH_KEY` (required secret): SSH private key
+- `VPS_FINGERPRINT` (optional secret, recommended): host fingerprint
 
-Na VPS, rode `bash deploy/setup-vps.sh` uma vez; depois cada push em `main`
-atualiza o projeto. O `.env` da VPS é preservado entre deploys.
+On the VPS, run `bash deploy/setup-vps.sh` once; after that, every push to `main`
+updates the project. The VPS `.env` is preserved across deploys. The container
+binds to `127.0.0.1`; nginx/Caddy should terminate TLS and apply rate limits.
 
-## Agentes e skills
+## Agents and skills
 
-- `AGENTS.md` na raiz: regras para trabalhar no próprio template (gerar as duas
-  variantes, validar e atualizar o PR).
-- `template/AGENTS.md`: instruções que nascem na raiz de cada projeto gerado —
-  stack, comandos, loop de escopo/implementação/testes e definição de pronto.
-- `.opencode/skills/owasp-review`: skill local de revisão de segurança do diff.
-- Achados aceitos são registrados em `template/SECURITY.md` (ACK), não
-  silenciados.
-- UI: **Taste** só para explorar duas direções; **Impeccable** para implementar a
-  direção escolhida. As instruções de instalação estão no README gerado.
+- Root `AGENTS.md`: rules for working on the template itself (generate both
+  variants, validate, update the PR).
+- `template/AGENTS.md`: instructions that land at the root of every generated
+  project — stack, commands, scope/implementation/test loop, and definition of
+  done.
+- `.opencode/skills/owasp-review`: local security-review skill for the diff.
+- Accepted findings are recorded in `template/SECURITY.md` (ACK), never silently
+  ignored.
+- UI: **Taste** only to explore two directions; **Impeccable** to implement the
+  chosen direction. Installation instructions are in the generated README.
 
-## Estrutura
+## Structure
 
 ```text
 .
-├── AGENTS.md                # instruções para agentes neste repo
-├── create_project.py        # gerador (sem dependências)
-├── .opencode/skills/        # skill local de review OWASP
-├── template/                # arquivos copiados para o projeto novo
-│   ├── AGENTS.md            # instruções do projeto gerado
-│   ├── SECURITY.md          # baseline + riscos aceitos (ACK)
-│   ├── project/             # backend Flask (factory + services)
+├── AGENTS.md                # instructions for agents in this repo
+├── create_project.py        # generator (no dependencies)
+├── .opencode/skills/        # local OWASP review skill
+├── template/                # files copied into the new project
+│   ├── AGENTS.md            # generated project instructions
+│   ├── SECURITY.md          # baseline + accepted risks (ACK)
+│   ├── project/             # Flask backend (factory + services)
 │   ├── frontend/            # React + Vite + Playwright
 │   ├── tests/
-│   ├── deploy/              # setup inicial da VPS
-│   └── .github/workflows/   # CI e deploy do projeto gerado
-└── .github/workflows/       # CI do próprio template
+│   ├── deploy/              # VPS bootstrap
+│   └── .github/workflows/   # generated project CI and deploy
+└── .github/workflows/       # template CI
 ```

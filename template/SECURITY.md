@@ -1,56 +1,56 @@
-# Segurança
+# Security
 
-Este projeto é um starter de demonstração para iteração rápida. Este documento
-registra o que foi corrigido e o que foi **aceito conscientemente** (ACK).
+This project is a demo starter for fast iteration. This document records what
+has been fixed and what has been **consciously accepted** (ACK).
 
-## Baseline aplicado
+## Applied baseline
 
-- `FLASK_ENV` validado contra `development`, `test` e `production`; valores
-  desconhecidos falham em vez de cair silenciosamente em development.
-- Produção exige `FLASK_SECRET_KEY` com pelo menos 32 caracteres e rejeita
-  placeholders como `change-me`.
-- Corpo da requisição limitado a 1 MiB; echo limitado a 10.000 caracteres e
-  notas a 500 caracteres.
-- O container publica a porta apenas em `127.0.0.1`; TLS e rate limit ficam no
-  nginx/proxy.
-- Headers básicos: `X-Content-Type-Options`, `X-Frame-Options` e
+- `FLASK_ENV` is validated against `development`, `test`, and `production`;
+  unknown values fail instead of silently falling back to development.
+- Production requires `FLASK_SECRET_KEY` with at least 32 characters and rejects
+  placeholders such as `change-me`.
+- Request bodies are limited to 1 MiB; echo is limited to 10,000 characters and
+  notes to 500 characters.
+- The container publishes its port only on `127.0.0.1`; TLS and rate limiting
+  live in nginx/proxy.
+- Basic headers: `X-Content-Type-Options`, `X-Frame-Options`, and
   `Referrer-Policy`.
-- SQLAlchemy/ORM, sem SQL concatenado. React escapa o conteúdo das notas.
-- Docker roda como usuário não-root; a VPS gera `.env` com segredo aleatório e
-  aplica `chmod 600`.
+- SQLAlchemy/ORM, with no string-concatenated SQL. React escapes note content.
+- Docker runs as a non-root user; the VPS setup generates `.env` with a random
+  secret and applies `chmod 600`.
 
-## Riscos aceitos (ACK)
+## Accepted risks (ACK)
 
-| ID | Item | Decisão | Motivo | Mitigação atual | Revisar quando |
+| ID | Item | Decision | Reason | Current mitigation | Revisit when |
 | --- | --- | --- | --- | --- | --- |
-| ACK-001 | Rate limit | Fora do app; responsabilidade do nginx/proxy. | Evita dependência e complexidade no starter. | Porta bindada em `127.0.0.1`; proxy na frente. | Se o proxy sair do caminho ou houver exposição direta. |
-| ACK-002 | Deploy SSH como `root` | Aceito; é configuração da máquina e não será alterada aqui. | O ambiente da VPS já é assim. | Chave dedicada, `VPS_SSH_KEY` em secret e fingerprint quando configurado. | Se a VPS permitir usuário de deploy com acesso ao Docker. |
-| ACK-003 | API de notas pública | Aceito para demo. | O projeto é um starter sem identidade. | Não armazenar dados pessoais/sensíveis; uso local ou demo. | Antes de qualquer uso real ou dado de terceiros. |
-| ACK-004 | TLS | Fora do app; terminação no nginx/proxy. | O pacote não deve embutir um proxy. | Container não é exposto diretamente. | Antes de acessar pela internet pública. |
-| ACK-005 | Swagger público | Aceito para demo. | Ajuda a inspecionar a API durante a entrevista. | Nenhuma escrita privilegiada; endpoints são de exemplo. | Em produção real, proteger ou desativar `/api/docs`. |
-| ACK-006 | CSP/HSTS | Delegado ao nginx/proxy. | CSP precisa conhecer o domínio e os assets do proxy. | Headers básicos no Flask. | Ao configurar o domínio e TLS. |
-| ACK-007 | Actions por tag | Aceito no template. | Atualizações automáticas de segurança são desejáveis. | `permissions: contents: read`; secrets isolados. | Em repositório de alta assurance, pinar por SHA. |
-| ACK-008 | Docker via `curl \| sh` | Aceito no bootstrap da VPS. | Setup rápido de uma máquina de demo. | Script roda só uma vez na configuração inicial. | Em ambiente hardened, usar pacote/checksum verificado. |
-| ACK-009 | Docker usa `pip`, não `uv.lock` | Aceito para simplicidade. | O starter prioriza iteração rápida. | Dependências têm faixas no `pyproject.toml`. | Quando reprodutibilidade estrita for necessária. |
-| ACK-010 | Notas sem paginação | Aceito para demo. | Volume pequeno, sem usuários reais. | Limite de 500 caracteres por nota. | Antes de crescer o volume de dados. |
-| ACK-011 | Sem autenticação/identidade | Fora do escopo do starter. | Entrevista rápida, sem dados reais. | Não armazenar PII; API é de exemplo. | Antes de qualquer funcionalidade com dados de usuário. |
-| ACK-012 | Fingerprint SSH opcional | Aceito para demo. | Nem toda VPS tem o secret configurado de início. | `VPS_FINGERPRINT` documentado; configure-o no deploy real. | Antes de qualquer deploy em produção. |
+| ACK-001 | Rate limiting | Outside the app; nginx/proxy responsibility. | Avoids a dependency and complexity in the starter. | Port bound to `127.0.0.1`; proxy in front. | If the proxy is removed or the app is exposed directly. |
+| ACK-002 | SSH deploy as `root` | Accepted; it is machine configuration and will not change here. | The VPS environment already works this way. | Dedicated key, `VPS_SSH_KEY` in secrets, fingerprint when configured. | If the VPS allows a deploy user with Docker access. |
+| ACK-003 | Public notes API | Accepted for the demo. | The starter has no identity layer. | Do not store personal or sensitive data; use locally or for demos. | Before any real use or third-party data. |
+| ACK-004 | TLS | Outside the app; terminated at nginx/proxy. | The package should not embed a proxy. | Container is not exposed directly. | Before public internet access. |
+| ACK-005 | Public Swagger | Accepted for the demo. | Helps inspect the API during the interview. | No privileged writes; endpoints are examples. | In real production, protect or disable `/api/docs`. |
+| ACK-006 | CSP/HSTS | Delegated to nginx/proxy. | CSP needs the domain and proxy asset policy. | Basic headers in Flask. | When configuring the domain and TLS. |
+| ACK-007 | GitHub Actions by tag | Accepted in the template. | Automatic security updates are desirable. | `permissions: contents: read`; isolated secrets. | In a high-assurance repository, pin by SHA. |
+| ACK-008 | Docker via `curl \| sh` | Accepted for VPS bootstrap. | Fast setup for a demo machine. | Script runs once during initial setup. | In a hardened environment, use a package or verified checksum. |
+| ACK-009 | Docker uses `pip`, not `uv.lock` | Accepted for simplicity. | The starter prioritizes fast iteration. | Dependencies have ranges in `pyproject.toml`. | When strict reproducibility is required. |
+| ACK-010 | Notes without pagination | Accepted for the demo. | Small volume, no real users. | Limit of 500 characters per note. | Before data volume grows. |
+| ACK-011 | No authentication/identity | Out of scope for the starter. | Fast interview setup, no real data. | Do not store PII; the API is an example. | Before any user-data feature. |
+| ACK-012 | Optional SSH fingerprint | Accepted for the demo. | Not every VPS has the secret configured initially. | `VPS_FINGERPRINT` is documented; configure it for real deploys. | Before any production deployment. |
 
-## Como registrar um novo ACK
+## How to add a new ACK
 
-Ao decidir não corrigir um achado, adicione uma linha à tabela acima com:
+When you decide not to fix a finding, add a row to the table above with:
 
-- ID sequencial;
-- item e arquivo/rota afetados;
-- motivo da decisão;
-- mitigação atual;
-- gatilho para revisitar.
+- sequential ID;
+- item and affected file/route;
+- reason for the decision;
+- current mitigation;
+- trigger to revisit.
 
-Achados de segurança **não podem ser ignorados silenciosamente**. Se a decisão
-for corrigir, registre o teste que cobre a correção. Se for aceitar, registre o
-ACK. Nunca inclua segredos, tokens ou dados pessoais neste arquivo.
+Security findings **must not be silently ignored**. If the decision is to fix,
+record the test that covers the fix. If accepted, record the ACK. Never include
+secrets, tokens, or personal data in this file.
 
-## Revisão
+## Review
 
-Última revisão: 2026-11-22. Revisar antes de armazenar dados pessoais, adicionar
-autenticação, expor o serviço publicamente ou aumentar o volume de dados.
+Last reviewed: 2026-11-22. Review before storing personal data, adding
+authentication, exposing the service publicly, or increasing data volume.

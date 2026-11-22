@@ -1,10 +1,10 @@
 import { PROJECT_NAME } from "../config";
 
 const STACK = [
-  ["Backend", "Flask 3 + Flask-RESTX, factory de app e Swagger em /api/docs"],
-  ["Frontend", "React 19 + Vite + TypeScript, com proxy de /api no dev"],
-  ["Testes", "pytest para a API e Playwright (Chromium headless) para o fluxo real"],
-  ["Deploy", "Docker Compose na VPS, acionado por GitHub Actions"],
+  ["Backend", "Flask 3 + Flask-RESTX, app factory and Swagger at /api/docs"],
+  ["Frontend", "React 19 + Vite + TypeScript, with an /api proxy in development"],
+  ["Tests", "pytest for the API and Playwright (headless Chromium) for the real flow"],
+  ["Deploy", "Docker Compose on the VPS, triggered by GitHub Actions"],
 ];
 
 export default function AboutPage() {
@@ -12,10 +12,10 @@ export default function AboutPage() {
     <section className="stack narrow">
       <header>
         <p className="eyebrow">{PROJECT_NAME}</p>
-        <h1>Sobre</h1>
+        <h1>About</h1>
         <p className="lede">
-          Template enxuto para projetos pequenos, feito para rodar no Windows e no
-          Linux sem depender de Docker no dia a dia.
+          A lean starter for small projects, built to run on Windows and Linux
+          without Docker in daily development.
         </p>
       </header>
 
@@ -32,7 +32,7 @@ export default function AboutPage() {
       </div>
 
       <div className="card">
-        <h2>Links úteis</h2>
+        <h2>Useful links</h2>
         <ul className="link-list">
           <li>
             <a href="/api/docs">Swagger UI</a>
@@ -42,12 +42,12 @@ export default function AboutPage() {
           </li>
           <li>
             <a href="https://flask.palletsprojects.com/" rel="noreferrer">
-              Documentação do Flask
+              Flask documentation
             </a>
           </li>
           <li>
             <a href="https://vite.dev/" rel="noreferrer">
-              Documentação do Vite
+              Vite documentation
             </a>
           </li>
         </ul>
