@@ -172,6 +172,9 @@ def copy_template(target: Path, values: dict[str, str | bool]) -> None:
             with destination.open("w", encoding="utf-8", newline="") as file:
                 file.write(rendered)
 
+            if os.name != "nt" and destination.suffix == ".sh":
+                destination.chmod(0o755)
+
 
 def write_local_env(target: Path) -> None:
     """Create a gitignored .env with a random secret so the app runs at once."""
