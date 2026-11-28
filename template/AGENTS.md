@@ -79,20 +79,26 @@ decisions. Keep it concise so the user can review it while you implement.
 ## Feature workflow
 
 1. **Clarify** the user flow and acceptance criteria with the user. No code.
-2. **Docs first:** write a short `docs/requirements.rst` and wait for review
+2. **Roadmap:** list the slices (docs, API/data, frontend, tests) and include an
+   explicit art-direction decision: **create a new direction (default)** or
+   **reuse the starter's cream+green system** (only when the user asks for
+   continuity or an existing design system must be preserved).
+3. **Docs first:** write a short `docs/requirements.rst` and wait for review
    while implementation starts.
-3. **Two subagents in parallel when useful:**
+4. **Two subagents in parallel when useful:**
    - Backend: `project/**`, `tests/**`, API/database contract. No servers.
    - Frontend: `frontend/src/**`, UI components/styles. No servers, no E2E.
    - The main agent owns `docs/**`, integration, servers, and E2E.
-4. **Integrate** and run pytest/typecheck. The user presents the frontend.
-5. **Tests in parallel:** the agent may write/run isolated E2E while the user
+5. **Integrate** and run pytest/typecheck. The user presents the frontend.
+6. **Tests in parallel:** the agent may write/run isolated E2E while the user
    presents. Do not change demo code or processes during the presentation.
-6. After the user gives the OK, finish fixes and update docs/tests.
+7. After the user gives the OK, finish fixes and update docs/tests.
 
-Before UI work, state a one-sentence visual direction. Use Taste when the
-direction is open and Impeccable to implement. Reusing the template's visual
-system is fine **if it is an explicit choice**, not a default copy.
+The starter theme is scaffolding, not the product's identity. Before UI work,
+the roadmap states the art-direction decision in one sentence. Create a new
+direction by default (palette, type, density, main action); use Taste when the
+direction is open and Impeccable to implement. Reuse the cream+green system only
+as an explicit choice, never as an unexamined default.
 
 ## Working loop
 
@@ -143,10 +149,11 @@ Load the skill by its exact ID before starting the part of the work it covers
 (for example, load `owasp-review` before reviewing the diff). Naming a skill in
 the plan is not the same as using it.
 
-- **`design-taste-frontend` (Taste)** — use when the user asks for visual
-  options. Propose two compact directions in text, including layout, density,
-  and the main action. If the user already asked for implementation and the flow
-  is clear, proceed with a simple layout that prioritizes the main action.
+- **`design-taste-frontend` (Taste)** - use when the art direction is open or a
+  new one is needed. State the create-vs-reuse decision first, then propose two
+  compact new directions in text (layout, density, main action) when the user
+  wants options. If the flow is clear, pick the stronger new direction and
+  proceed instead of silently reusing the starter theme.
 - **`impeccable`** — use to build or review the requested screen. Prioritize
   hierarchy, forms, focus, and error/success states.
 - **`owasp-review`** — use when the user asks, or before the demo if the diff
@@ -193,7 +200,9 @@ the plan is not the same as using it.
 - Show explicit loading, empty, error, and success states.
 - For financial screens, make amounts easy to compare and show the result of
   each action clearly. Use a restrained visual style suited to the workflow.
-- Reuse existing components and styles. Keep animation minimal.
+- Reuse existing components and patterns, but not the starter palette by
+  default. The roadmap's art-direction decision controls the visual system.
+  Keep animation minimal.
 - Do not introduce a new UI framework, state manager, or CSS system unless the
   user asks.
 
