@@ -80,9 +80,10 @@ decisions. Keep it concise so the user can review it while you implement.
 
 1. **Clarify** the user flow and acceptance criteria with the user. No code.
 2. **Roadmap:** list the slices (docs, API/data, frontend, tests) and include an
-   explicit art-direction decision: **create a new direction (default)** or
+   explicit art-direction decision: **create a new direction (preferred)** or
    **reuse the starter's cream+green system** (only when the user asks for
-   continuity or an existing design system must be preserved).
+   continuity or an existing design system must be preserved). Prefer a new
+   direction; reuse needs a concrete reason.
 3. **Docs first:** write a short `docs/requirements.rst` and wait for review
    while implementation starts.
 4. **Two subagents in parallel when useful:**
@@ -95,10 +96,10 @@ decisions. Keep it concise so the user can review it while you implement.
 7. After the user gives the OK, finish fixes and update docs/tests.
 
 The starter theme is scaffolding, not the product's identity. Before UI work,
-the roadmap states the art-direction decision in one sentence. Create a new
-direction by default (palette, type, density, main action); use Taste when the
-direction is open and Impeccable to implement. Reuse the cream+green system only
-as an explicit choice, never as an unexamined default.
+the roadmap states the art-direction decision in one sentence. Prioritize a new
+direction (palette, type, density, main action); use Taste when the direction is
+open and Impeccable to implement. Reuse the cream+green system only with a
+concrete reason, never as an unexamined default.
 
 ## Working loop
 
@@ -200,9 +201,9 @@ the plan is not the same as using it.
 - Show explicit loading, empty, error, and success states.
 - For financial screens, make amounts easy to compare and show the result of
   each action clearly. Use a restrained visual style suited to the workflow.
-- Reuse existing components and patterns, but not the starter palette by
-  default. The roadmap's art-direction decision controls the visual system.
-  Keep animation minimal.
+- Reuse existing components and patterns, but do not inherit the starter
+  palette without an explicit choice. The roadmap's art-direction decision
+  controls the visual system. Keep animation minimal.
 - Do not introduce a new UI framework, state manager, or CSS system unless the
   user asks.
 

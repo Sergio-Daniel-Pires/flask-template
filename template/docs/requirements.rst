@@ -39,7 +39,7 @@ UI
 --
 
 - Screen(s):
-- Art direction: new (default) or reuse starter cream+green (why):
+- Art direction: new (preferred) or reuse starter cream+green (why):
 - Palette, type, density (one line):
 - Main action:
 - Loading/empty/error/success states:

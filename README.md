@@ -106,9 +106,9 @@ Stop the servers with `Ctrl+C` in each terminal. If a port is stuck on Windows:
   errors, Swagger, and `/healthz`.
 - **Frontend**: React 19 + TypeScript + React Router, with a single Home
   placeholder. Remove or replace it when the task does not ask for a landing
-  page. The agent decides the art direction in its roadmap: create a new one by
-  default, reuse the starter cream+green theme only when asked. No
-  Echo/About/Notes page bloat.
+  page. The agent decides the art direction in its roadmap: prefer a new one,
+  reuse the starter cream+green theme only when asked or continuity matters.
+  No Echo/About/Notes page bloat.
 - **Database**: optional SQLite/SQLAlchemy wiring at `instance/app.db`; no
   example model. `DATABASE_URL` switches to Postgres/MySQL.
 - **Tests**: pytest for the API and Playwright (headless Chromium) against the
