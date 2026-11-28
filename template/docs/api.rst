@@ -3,7 +3,7 @@ API
 
 Swagger is the only API reference. Start the backend and open
 <http://localhost:5000/api/docs>. Do not duplicate request/response schemas in
-this Sphinx tree; update the Flask-RESTX models and docstrings instead.
+this documentation; update the Flask-RESTX models and docstrings instead.
 
 Endpoints
 ---------

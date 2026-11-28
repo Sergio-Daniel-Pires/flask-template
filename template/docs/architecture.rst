@@ -17,13 +17,13 @@ Request flow
 
 Development:
 
-.. code-block:: text
+::
 
    browser -> Vite :5173 -> /api and /healthz proxy -> Flask :5000
 
 Production:
 
-.. code-block:: text
+::
 
    browser -> nginx/TLS -> Flask/Gunicorn :8000
                          -> /api and /healthz
@@ -63,9 +63,9 @@ Frontend layout
 Related
 -------
 
-- :doc:`development` — setup, commands, and tests.
-- :doc:`api` — where the API reference lives.
-- :doc:`deployment` — Docker, nginx, and VPS deployment.
+- `Development <development.rst>`_ — setup, commands, and tests.
+- `API <api.rst>`_ — where the API reference lives.
+- `Deployment <deployment.rst>`_ — Docker, nginx, and VPS deployment.
 [[#if database]]
-- :doc:`database` — SQLite/SQLAlchemy wiring.
+- `Database <database.rst>`_ — SQLite/SQLAlchemy wiring.
 [[/if]]

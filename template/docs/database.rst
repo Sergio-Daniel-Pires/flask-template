@@ -10,7 +10,7 @@ Switch databases
 
 Use ``DATABASE_URL`` without changing code:
 
-.. code-block:: bash
+::
 
    # SQLite relative to the instance/ directory
    DATABASE_URL=sqlite:///app.db

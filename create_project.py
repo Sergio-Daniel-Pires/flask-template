@@ -49,6 +49,7 @@ NAME_PATTERN = re.compile(r"^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$")
 FEATURE_PATHS = {
     "database": (
         "project/extensions.py",
+        "tests/test_db_profile.py",
         "docs/database.rst",
     ),
 }

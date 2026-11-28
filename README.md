@@ -111,12 +111,12 @@ Stop the servers with `Ctrl+C` in each terminal. If a port is stuck on Windows:
   example model. `DATABASE_URL` switches to Postgres/MySQL.
 - **Tests**: pytest for the API and Playwright (headless Chromium) against the
   real Flask backend. The E2E guard fails on mocked `/api` routes.
-- **Docs**: Swagger is the only API reference; implementation docs are Sphinx
-  `.rst` under `docs/`, with a coverage matrix in `docs/testing.rst`.
+- **Docs**: Swagger is the only API reference; implementation docs are readable
+  `.rst` files under `docs/`, with a coverage matrix in `docs/testing.rst` and a
+  short requirements brief.
 - **Docker**: multi-stage image (React build + Gunicorn), non-root user,
   healthcheck, and a persistent volume for SQLite.
-- **CI**: lint, typecheck, tests, Playwright, docs build, and a Docker
-  build/smoke test.
+- **CI**: lint, typecheck, tests, Playwright, and a Docker build/smoke test.
 - **Deploy**: SSH + `docker compose up -d --build`, with a health check.
 - **Security**: `SECURITY.md` with the baseline and explicit accepted risks
   (ACK); the OWASP skill requires an ACK instead of silently ignoring a finding.
@@ -124,7 +124,7 @@ Stop the servers with `Ctrl+C` in each terminal. If a port is stuck on Windows:
   test-reporting rules, and the E2E real-backend guard; a local `owasp-review`
   skill; optional Impeccable/TasteSkill for UI.
 - **Git hygiene**: comprehensive `.gitignore` for Python/uv, Node/Vite/React,
-  Playwright, Sphinx, editors, and local secrets.
+  Playwright, editors, and local secrets.
 
 ### Fast Playwright
 
@@ -133,33 +133,27 @@ The suite has one test and runs in headless Chromium:
 ```bash
 cd frontend
 npx playwright install --only-shell chromium   # first time
-npm run test:e2e        # build + Flask on port 5050 (production path)
-npm run test:e2e:dev    # reuses running Flask + Vite servers (fast loop)
+npm run test:e2e        # build + Flask 5050 + temp SQLite
 npm run test:e2e:guard  # fails if E2E mocks /api
+npm run preview:agent   # agent preview: Flask 5051 + Vite 5273
 ```
 
 `test:e2e` validates the real build served by Flask and the real backend,
-including SPA deep links. `test:e2e:dev` is the fastest loop: if both dev
-servers are already running, there is no build or startup wait.
+including SPA deep links, against a temp SQLite created/removed per run. It
+never reuses or opens the demo stack (`5000/5173`, `instance/app.db`).
 
 
 ### Documentation
 
 The generated project keeps docs separated:
 
-- `README.md` — quick start and links only.
-- `docs/*.rst` — Sphinx architecture, development, testing, deployment, and
-  database details.
-- `/api/docs` — Swagger, the only API reference.
-- `SECURITY.md` — security baseline and ACKs.
-- `docs/testing.rst` — coverage matrix and evidence-reporting rules.
-
-Build the docs:
-
-```bash
-uv sync --extra docs
-uv run sphinx-build -W -b html docs docs/_build/html
-```
+- `README.md` - quick start and links only.
+- `docs/*.rst` - readable requirements, architecture, development, testing,
+  deployment, and database details. No build step required.
+- `/api/docs` - Swagger, the only API reference.
+- `SECURITY.md` - security baseline and ACKs.
+- `docs/testing.rst` - coverage matrix and evidence-reporting rules.
+- `docs/requirements.rst` - short brief written before implementation.
 
 ## Working on the template
 
@@ -214,7 +208,7 @@ binds to `127.0.0.1`; nginx/Caddy should terminate TLS and apply rate limits.
 ├── template/                # files copied into the new project
 │   ├── AGENTS.md            # generated project instructions
 │   ├── SECURITY.md          # baseline + accepted risks (ACK)
-│   ├── docs/                # Sphinx implementation docs
+│   ├── docs/                # readable .rst implementation docs
 │   ├── project/             # Flask backend (factory + services)
 │   ├── frontend/            # React + Vite + Playwright
 │   ├── tests/

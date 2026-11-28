@@ -15,8 +15,8 @@ code before changing anything. Prefer the commands in those files over guesses.
   (`services/`), and WSGI entrypoint (`wsgi.py`).
 - `frontend/` — React + TypeScript + Vite. The Vite dev server proxies `/api`
   and `/healthz` to Flask. In production Flask serves `frontend/dist`.
-- `docs/` — Sphinx implementation docs in `.rst` (architecture, development,
-  testing, deployment, database).
+- `docs/` — readable reStructuredText implementation docs (requirements,
+  architecture, development, testing, deployment, database). No build step.
 - `tests/` — pytest API tests. They use an isolated database when persistence
   is involved.
 - `frontend/e2e/` — Playwright tests. They run against the real Flask app
@@ -29,20 +29,70 @@ code before changing anything. Prefer the commands in those files over guesses.
 
 - `README.md` — short quick start and links; do not duplicate implementation
   docs there.
-- `docs/*.rst` — architecture, development, testing, deployment, and database
-  details.
+- `docs/*.rst` — requirements, architecture, development, testing, deployment,
+  and database details. Read them directly; no Sphinx build.
 - Swagger at `/api/docs` — the **only** API reference; do not duplicate schemas
   in `.rst`.
 - `SECURITY.md` — security baseline and accepted risks (ACK).
 - `docs/testing.rst` — what each test covers and what it does not cover.
 
-Docs-first: before implementing, update the relevant `.rst` page with a short
-note on scope, API/data changes, and decisions. Keep it concise so the user can
-review it while you implement. Build with:
+Docs-first: before implementing, update the relevant `.rst` page (usually
+`docs/requirements.rst`) with a short note on scope, API/data changes, and
+decisions. Keep it concise so the user can review it while you implement.
 
-```bash
-uv run sphinx-build -W -b html docs docs/_build/html
-```
+## Environments and server ownership
+
+[[#if database]]
+| Role | Backend | Frontend | Database |
+| --- | --- | --- | --- |
+| Demo (user + main agent) | `5000` | `5173` | `instance/app.db` |
+| Agent preview | `5051` | `5273` | `instance/preview.db` |
+| Playwright E2E | `5050` | build served by Flask | temp SQLite per run |
+[[/if]]
+[[#unless database]]
+| Role | Backend | Frontend |
+| --- | --- | --- |
+| Demo (user + main agent) | `5000` | `5173` |
+| Agent preview | `5051` | `5273` |
+| Playwright E2E | `5050` | build served by Flask |
+[[/unless]]
+
+- The demo stack belongs to the user and the main agent. Both may start, see
+  logs, stop, and restart it in visible Windows terminals.
+- The agent may use the preview stack (`npm run preview:agent` from
+  `frontend/`) on `5051/5273`. It must not use `5000/5173` for preview.
+[[#if database]]
+- Playwright owns `5050` and creates/removes its own temp SQLite. It must not
+  reuse demo or preview servers.
+[[/if]]
+[[#unless database]]
+- Playwright owns `5050`. It must not reuse demo or preview servers.
+[[/unless]]
+- Never use `Start-Process`, `&`, `nohup`, or another background mechanism for
+  dev servers. If a server must stay up, the user or main agent runs it in a
+  visible terminal and owns the process.
+- Do not kill processes you did not start. Check ports before starting.
+- During a presentation, preserve the demo processes and code. The agent may
+  run isolated tests in parallel without waiting for an OK. If it finds a bug,
+  report it and hold the fix until the presentation ends.
+
+## Feature workflow
+
+1. **Clarify** the user flow and acceptance criteria with the user. No code.
+2. **Docs first:** write a short `docs/requirements.rst` and wait for review
+   while implementation starts.
+3. **Two subagents in parallel when useful:**
+   - Backend: `project/**`, `tests/**`, API/database contract. No servers.
+   - Frontend: `frontend/src/**`, UI components/styles. No servers, no E2E.
+   - The main agent owns `docs/**`, integration, servers, and E2E.
+4. **Integrate** and run pytest/typecheck. The user presents the frontend.
+5. **Tests in parallel:** the agent may write/run isolated E2E while the user
+   presents. Do not change demo code or processes during the presentation.
+6. After the user gives the OK, finish fixes and update docs/tests.
+
+Before UI work, state a one-sentence visual direction. Use Taste when the
+direction is open and Impeccable to implement. Reusing the template's visual
+system is fine **if it is an explicit choice**, not a default copy.
 
 ## Working loop
 
@@ -75,8 +125,14 @@ npm install
 npm run dev
 npm run typecheck
 npm run build
-npm run test:e2e       # production path; builds and serves on 5050
-npm run test:e2e:dev   # reuses already-running dev servers
+[[#if database]]
+npm run test:e2e       # E2E on 5050 with temp SQLite
+npm run preview:agent  # preview on 5051/5273 with preview.db
+[[/if]]
+[[#unless database]]
+npm run test:e2e       # E2E on 5050
+npm run preview:agent  # preview on 5051/5273
+[[/unless]]
 ```
 
 `gunicorn` is Linux/production only; use Flask's dev server on Windows.
@@ -149,19 +205,28 @@ the plan is not the same as using it.
   `page.route`, MSW, `route.fulfill`, or `route.abort` in `frontend/e2e/`.
   `npm run test:e2e:guard` fails the suite if you do. Mock only in
   unit/component tests outside `e2e/`, and label those as UI tests, not E2E.
-- Use a separate test database so runs are repeatable and do not depend on
-  manual state.
+[[#if database]]
+- **E2E isolation:** Playwright owns `5050` and a temp SQLite created per run.
+  It must not reuse the demo (`5000/5173`) or preview (`5051/5273`) servers and
+  must never open `instance/app.db`. There is no `test:e2e:dev` shortcut.
+- pytest uses `:memory:` when sufficient; use a temp file only when multiple
+  connections are needed. Test mode must fail before opening `instance/app.db`.
+[[/if]]
+[[#unless database]]
+- **E2E isolation:** Playwright owns `5050`. It must not reuse the demo
+  (`5000/5173`) or preview (`5051/5273`) servers. There is no `test:e2e:dev`
+  shortcut.
+[[/unless]]
 - Invalid inputs: assert 4xx and that the database did not change.
 - Idempotency: if a write can be retried, test replay, conflict (same key,
   different payload), key scope, missing key, and retry after rejection. A
   sequential duplicate request is **not** a concurrency test.
 - Race conditions: real concurrency needs a file-backed database and two
-  threads/processes. If tests are sequential, say “real concurrency not
-  tested.” Do not claim race-condition coverage from sequential tests.
+  threads/processes. If tests are sequential, say "real concurrency not
+  tested." Do not claim race-condition coverage from sequential tests.
 - If identity is a client-controlled header or demo shortcut, say so. A filter
   using the ID you sent is not authorization/IDOR protection; only claim IDOR
   coverage with an authenticated identity and a server-side ownership check.
-- Invalid inputs: assert 4xx and that the database did not change.
 - Run `npm run typecheck` and the build when the frontend changes.
 - Run `npm run test:e2e` before reporting UI/API work as done. If it cannot run,
   say exactly why.
@@ -205,6 +270,6 @@ API test as backend coverage.
 - When a failed operation could leave partial writes, verify the stored state.
 - UI/API changes: `npm run test:e2e` ran against the real backend, or the
   reason it could not run is stated.
-- Relevant docs in `docs/*.rst` were updated and the Sphinx build passes.
+- Relevant docs in `docs/*.rst` were updated (readable directly; no build).
 - The final report includes commands, evidence, scope of any security review,
   and gaps that matter for the demo.

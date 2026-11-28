@@ -99,10 +99,8 @@ instance/
 *.sqlite
 *.sqlite3
 
-# Sphinx documentation build
-docs/_build/
-docs/.doctrees/
-site/
+# Local E2E state (removed by Playwright teardown)
+frontend/.e2e-state.json
 
 # Local agent skills installed on this machine
 .agents/

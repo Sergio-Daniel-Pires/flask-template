@@ -91,12 +91,38 @@ npx playwright install --only-shell chromium   # first time
 npm run test:e2e
 ```
 
+[[#if database]]
 `npm run test:e2e` builds the frontend, serves it through Flask on port 5050,
-and exercises the **real backend**. `npm run test:e2e:guard` fails the suite if
-an E2E test mocks `/api` with `page.route`, MSW, or `route.fulfill`. Mocking is
-allowed only in unit/component tests outside `e2e/`.
+and exercises the **real backend** against a temp SQLite created and removed
+for that run.
+[[/if]]
+[[#unless database]]
+`npm run test:e2e` builds the frontend, serves it through Flask on port 5050,
+and exercises the **real backend**.
+[[/unless]]
+`npm run test:e2e:guard` fails the suite if an E2E test mocks
+`/api` with `page.route`, MSW, or `route.fulfill`. Mocking is allowed only in
+unit/component tests outside `e2e/`.
 
-`npm run test:e2e:dev` reuses running Flask + Vite servers for the fast loop.
+[[#if database]]
+The demo stack is yours: Flask `5000` + Vite `5173` with `instance/app.db`.
+The agent preview runs on Flask `5051` + Vite `5273` with
+`instance/preview.db`:
+[[/if]]
+[[#unless database]]
+The demo stack is yours: Flask `5000` + Vite `5173`.
+The agent preview runs on Flask `5051` + Vite `5273`:
+[[/unless]]
+
+```bash
+cd frontend
+npm run preview:agent
+```
+
+Playwright never reuses either stack.
+[[#if database]]
+It also never opens `instance/app.db`.
+[[/if]]
 
 The coverage matrix, including what is **not** covered (idempotency,
 concurrency, auth), is in [`docs/testing.rst`](docs/testing.rst).
@@ -105,21 +131,13 @@ concurrency, auth), is in [`docs/testing.rst`](docs/testing.rst).
 
 - **API only:** Swagger at `/api/docs` (run the backend first). Do not duplicate
   schemas elsewhere.
-- **Implementation docs:** [`docs/`](docs/) in Sphinx `.rst` — architecture,
-  development, testing, API, deployment (and database when enabled).
+- **Implementation docs:** [`docs/`](docs/) in readable `.rst` — requirements,
+  architecture, development, testing, API, deployment (and database when
+  enabled). No build step required.
 - **Security:** [`SECURITY.md`](SECURITY.md) with the baseline and accepted
   risks (ACK).
 - **Agents:** [`AGENTS.md`](AGENTS.md) with the docs-first loop, test reporting,
-  and E2E guardrails.
-
-Build the Sphinx docs:
-
-```bash
-uv sync --extra docs
-uv run sphinx-build -W -b html docs docs/_build/html
-```
-
-Open `docs/_build/html/index.html`.
+  server ownership, and E2E guardrails.
 
 ## Deploy
 
@@ -148,7 +166,7 @@ notes.
 .
 ├── AGENTS.md
 ├── SECURITY.md
-├── docs/                      # Sphinx implementation docs
+├── docs/                      # readable .rst implementation docs
 ├── .opencode/skills/          # local owasp-review skill
 ├── project/                   # Flask backend
 ├── frontend/                  # React app + Playwright

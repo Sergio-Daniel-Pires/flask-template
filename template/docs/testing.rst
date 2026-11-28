@@ -4,37 +4,67 @@ Testing
 Test matrix
 -----------
 
-.. list-table::
-   :header-rows: 1
-   :widths: 30 38 32
+``tests/test_config.py``
+   Covers: unknown ``FLASK_ENV``, weak/placeholder secrets, strong production
+   secret.
+   Not covered: secret rotation or external secret managers.
 
-   * - File
-     - Covers
-     - Does not cover
-   * - ``tests/test_config.py``
-     - Unknown ``FLASK_ENV``, weak/placeholder secrets, strong production
-       secret.
-     - Secret rotation or external secret managers.
-   * - ``tests/test_security.py``
-     - Security headers and oversized request body (413).
-     - Full header policy (CSP/HSTS are proxy concerns).
-   * - ``tests/health/test_ping.py``
-     - Known routes, 404s, health payload.
-     - Load or readiness under dependency failures.
-   * - ``tests/test_api/test_home.py``
-     - Home JSON contract.
-     - —
-   * - ``tests/test_api/test_echo.py``
-     - Normal/reverse/mirror, missing fields, invalid enum, max length.
-     - Idempotency and concurrency (read-only endpoint).
-   * - ``frontend/e2e/home.spec.ts``
-     - Home loads the real backend status and the API docs link.
-     - Cross-browser behavior.
+``tests/test_security.py``
+   Covers: security headers and oversized request body (413).
+   Not covered: full header policy (CSP/HSTS are proxy concerns).
+
+[[#if database]]
+``tests/test_db_profile.py``
+   Covers: test/preview profiles reject ``instance/app.db``; test profile
+   requires an OS temp path; memory and temp databases are accepted.
+   Not covered: non-SQLite test databases (the starter is SQLite-only).
+
+[[/if]]
+``tests/health/test_ping.py``
+   Covers: known routes, 404s, health payload.
+   Not covered: load or readiness under dependency failures.
+
+``tests/test_api/test_home.py``
+   Covers: Home JSON contract.
+   Not covered: —
+
+``tests/test_api/test_echo.py``
+   Covers: normal/reverse/mirror, missing fields, invalid enum, max length.
+   Not covered: idempotency and concurrency (read-only endpoint).
+
+``frontend/e2e/home.spec.ts``
+   Covers: Home loads the real backend status and the API docs link.
+   Not covered: cross-browser behavior.
 
 The E2E suite always runs against the real Flask backend. ``npm run
 test:e2e:guard`` scans ``frontend/e2e`` and fails on ``page.route``, MSW, or
 ``route.fulfill``. Mocking is allowed only in unit/component tests outside
 ``e2e/`` and must not be reported as backend coverage.
+
+Test environments
+-----------------
+
+[[#if database]]
+- **Demo (user + main agent):** backend ``5000``, frontend ``5173``, database
+  ``instance/app.db``.
+- **Agent preview:** backend ``5051``, frontend ``5273``, database
+  ``instance/preview.db``.
+- **Playwright E2E:** backend ``5050``, build served by Flask, temp SQLite
+  created and removed per run.
+
+E2E never reuses the demo or preview servers. It never opens
+``instance/app.db``. In test mode the app fails before opening the database if
+the resolved path is the main database or, for ``APP_PROFILE=test``, outside the
+OS temp directory. There is no ``test:e2e:dev`` shortcut.
+[[/if]]
+[[#unless database]]
+- **Demo (user + main agent):** backend ``5000``, frontend ``5173``.
+- **Agent preview:** backend ``5051``, frontend ``5273``.
+- **Playwright E2E:** backend ``5050``, build served by Flask.
+
+E2E never reuses the demo or preview servers. There is no ``test:e2e:dev``
+shortcut.
+[[/unless]]
 
 Coverage gaps
 -------------
@@ -62,9 +92,9 @@ Testing layers
 --------------
 
 - **API integration** — pytest + Flask test client, real validation and
-  database logic, no HTTP server.
-- **E2E** — Playwright + real Flask backend + real database. No mocked
-  ``/api`` routes; ``npm run test:e2e:guard`` enforces this.
+  database logic, no HTTP server. Uses ``:memory:`` or a temp file.
+- **E2E** — Playwright + real Flask backend + temp SQLite. No mocked ``/api``
+  routes; ``npm run test:e2e:guard`` enforces this.
 - **Component/UI** — mocked API, if added. It is not backend coverage.
 
 What to report

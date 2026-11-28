@@ -35,11 +35,6 @@ dev = [
   "pytest-cov>=6",
   "ruff>=0.9",
 ]
-docs = [
-  "sphinx>=8",
-  "furo>=2024.8.6",
-  "sphinx-copybutton>=0.5.2",
-]
 
 [tool.setuptools.packages.find]
 include = ["project*"]

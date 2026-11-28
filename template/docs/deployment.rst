@@ -13,7 +13,7 @@ First setup
 
 On the VPS:
 
-.. code-block:: bash
+::
 
    git clone REPO_URL /opt/PROJECT
    cd /opt/PROJECT
@@ -41,7 +41,7 @@ Environment
 ``.env`` on the VPS is not versioned and survives ``git reset --hard``. It must
 contain at least:
 
-.. code-block:: text
+::
 
    FLASK_ENV=production
    FLASK_SECRET_KEY=<random 32+ characters>
@@ -55,7 +55,7 @@ Production rejects an empty secret, a short secret, or placeholders such as
 Operations
 ----------
 
-.. code-block:: bash
+::
 
    docker compose ps
    docker compose logs -f

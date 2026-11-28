@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 VALID_ENVS = frozenset({"development", "test", "production"})
+VALID_PROFILES = frozenset({"demo", "preview", "test"})
 MIN_PRODUCTION_SECRET_LENGTH = 32
 INSECURE_SECRETS = frozenset(
     {
@@ -38,6 +39,13 @@ def _get_env() -> str:
     if env not in VALID_ENVS:
         raise RuntimeError(f"FLASK_ENV must be one of {sorted(VALID_ENVS)}; got {env!r}")
     return env
+
+
+def _get_profile() -> str:
+    profile = os.getenv("APP_PROFILE", "demo").strip().lower()
+    if profile not in VALID_PROFILES:
+        raise RuntimeError(f"APP_PROFILE must be one of {sorted(VALID_PROFILES)}; got {profile!r}")
+    return profile
 
 
 def _get_secret_key(env: str) -> str:
@@ -72,6 +80,7 @@ def _get_secret_key(env: str) -> str:
 @dataclass(frozen=True)
 class Settings:
     env: str
+    profile: str
     debug: bool
     secret_key: str
     database_url: str
@@ -85,6 +94,7 @@ class Settings:
 @lru_cache
 def get_settings() -> Settings:
     env = _get_env()
+    profile = _get_profile()
     debug = _env_bool("FLASK_DEBUG", env == "development")
     secret_key = _get_secret_key(env)
 
@@ -97,6 +107,7 @@ def get_settings() -> Settings:
 
     return Settings(
         env=env,
+        profile=profile,
         debug=debug,
         secret_key=secret_key,
         database_url=database_url,

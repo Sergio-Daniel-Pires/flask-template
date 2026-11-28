@@ -14,7 +14,8 @@ new directory.
   generated project.
 - `template/project/` — Flask backend (app factory, services, optional SQLite wiring).
 - `template/frontend/` — React/Vite frontend and Playwright tests.
-- `template/docs/` — Sphinx implementation docs (`.rst`).
+- `template/docs/` — readable reStructuredText implementation docs (no Sphinx
+  build required).
 - `template/.github/workflows/` — CI/deploy for **generated projects only**.
   This repository intentionally has no workflow of its own.
 
@@ -41,7 +42,7 @@ new directory.
   reason and a mention in the PR.
 - Never create a second/mocked API for E2E tests. Playwright must hit the real
   Flask backend; the generated guard fails on route mocking.
-- Keep API schemas in Swagger only. Implementation details belong in Sphinx
+- Keep API schemas in Swagger only. Implementation details belong in readable
   `.rst`; README stays a short quick start.
 
 ## Validate
@@ -56,11 +57,10 @@ python create_project.py -n review-nodb --path ../review-nodb --vps-host 203.0.1
 For each generated project:
 
 ```bash
-uv sync --extra dev --extra docs
+uv sync --extra dev
 uv run ruff check .
 uv run ruff format --check .
 uv run pytest
-uv run sphinx-build -W -b html docs docs/_build/html
 
 cd frontend
 npm ci
@@ -77,6 +77,19 @@ rate limiting, cross-browser) rather than implying they are covered.
 
 Docker build/smoke test when Docker is available. If Docker or the VPS is not
 available, state that explicitly instead of claiming it was tested.
+
+### Isolation check
+
+When the generated project uses SQLite, validate the demo/preview/E2E split:
+
+- start demo on `5000/5173` with `instance/app.db`;
+- start preview with `npm run preview:agent` on `5051/5273` with
+  `instance/preview.db`;
+- hash `instance/app.db` before and after `npm run test:e2e`;
+- confirm the hash is unchanged, Playwright used its temp SQLite, and only the
+  E2E process on `5050` exited;
+- confirm `APP_PROFILE=test` pointed at `instance/app.db` fails before the
+  database opens.
 
 ## Skills
 

@@ -10,6 +10,7 @@ def app():
     application = create_app(
         {
             "TESTING": True,
+            "APP_PROFILE": "test",
             "SECRET_KEY": "test-secret",
             "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
             # Keep API tests independent from a local `npm run build`.
